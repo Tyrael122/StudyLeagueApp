@@ -35,7 +35,6 @@ import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.ProgressIndicator
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.TopBarTitleStyles
-import com.example.studyleague.ui.screens.StudentSpace
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 
 
@@ -59,7 +58,7 @@ fun SubjectScreen() {
     }) {
         NavHost(
             navController = navController,
-            startDestination = SubjectScreens.STATS.name,
+            startDestination = SubjectScreens.UPDATE.name,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)

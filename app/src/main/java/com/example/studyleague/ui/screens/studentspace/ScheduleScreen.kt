@@ -497,7 +497,7 @@ private fun setFullscreenMode(screenOrientation: Int) {
 
         val window = activity.window
         WindowCompat.getInsetsController(window, window.decorView).let {
-            it.show(WindowInsetsCompat.Type.systemBars())
+            it.hide(WindowInsetsCompat.Type.systemBars())
             it.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }

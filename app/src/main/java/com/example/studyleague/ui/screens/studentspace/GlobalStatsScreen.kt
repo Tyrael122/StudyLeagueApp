@@ -1,10 +1,8 @@
 package com.example.studyleague.ui.screens.studentspace
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -13,7 +11,6 @@ import androidx.compose.ui.unit.sp
 import com.example.studyleague.ui.components.Accordion
 import com.example.studyleague.ui.components.AccordionBody.TextRow
 import com.example.studyleague.ui.components.StatisticsSquare
-import com.example.studyleague.ui.screens.StudentSpace
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 
 

@@ -30,9 +30,9 @@ import com.example.studyleague.ui.components.NavigationItem
 import com.example.studyleague.ui.components.NavigationItemBuilder
 import com.example.studyleague.ui.components.StudentTopBar
 import com.example.studyleague.ui.components.TopBarTitle
-import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
 import com.example.studyleague.ui.screens.studentspace.DailyStatsScreen
 import com.example.studyleague.ui.screens.studentspace.GlobalStatsScreen
+import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
 import com.example.studyleague.ui.screens.studentspace.SubjectScreen
 import com.example.studyleague.ui.screens.studentspace.SubjectTableScreen
 import kotlinx.coroutines.launch
@@ -40,7 +40,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun StudentSpace(
-    modifier: Modifier = Modifier, bottomBar: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier,
+    hasCompletedOnboarding: Boolean,
+    bottomBar: @Composable () -> Unit = {},
 ) {
     val navController = rememberNavController()
     var currentRoute by remember {
@@ -73,17 +75,20 @@ fun StudentSpace(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                StudentNavGraph(navController = navController)
+                StudentNavGraph(
+                    navController = navController,
+                    startDestination = if (hasCompletedOnboarding) StudentScreen.GLOBAL_STATS.name else StudentScreen.SUBJECTS_TABLE.name
+                )
             }
         }
     }
 }
 
 @Composable
-fun StudentNavGraph(navController: NavHostController) {
+fun StudentNavGraph(navController: NavHostController, startDestination: String) {
     NavHost(
         navController = navController,
-        startDestination = StudentScreen.SCHEDULE.name,
+        startDestination = startDestination,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(StudentScreen.GLOBAL_STATS.name) {
@@ -95,7 +100,7 @@ fun StudentNavGraph(navController: NavHostController) {
         }
 
         composable(StudentScreen.SUBJECTS_TABLE.name) {
-            SubjectTableScreen()
+            SubjectTableScreen(navigateToSubject = { navController.navigate(StudentScreen.SUBJECT.name) })
         }
 
         composable(StudentScreen.SUBJECT.name) {

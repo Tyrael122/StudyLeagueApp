@@ -1,6 +1,5 @@
 package com.example.studyleague.ui.screens.studentspace
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.datagrid.DataGrid
@@ -8,10 +7,10 @@ import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 
 
 @Composable
-fun SubjectTableScreen() {
+fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit) {
     StudentSpaceDefaultColumn {
         DataGrid(
-            columns = Subject.columns, items = sampleSubjectList
+            columns = Subject.columns, items = sampleSubjectList, onItemClick = navigateToSubject
         )
     }
 }
