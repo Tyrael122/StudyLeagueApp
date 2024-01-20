@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -50,14 +49,13 @@ fun Accordion(
     ) {
         val horizontalPadding = 10.dp
 
-        AccordionHeader(title = title,
-            isExpanded = isExpanded,
-            paddingValues = PaddingValues(horizontal = horizontalPadding),
-            modifier = Modifier
-                .clickable {
-                    isExpanded = !isExpanded
-                }
-                .padding(horizontal = horizontalPadding))
+        AccordionHeader(modifier = Modifier
+            .clickable {
+                isExpanded = !isExpanded
+            }
+            .padding(horizontal = horizontalPadding),
+            title = title,
+            isExpanded = isExpanded)
 
         AnimatedVisibility(visible = isExpanded) {
             Column(
@@ -78,8 +76,7 @@ fun Accordion(
 private fun AccordionHeader(
     modifier: Modifier = Modifier,
     title: String,
-    isExpanded: Boolean,
-    paddingValues: PaddingValues = PaddingValues()
+    isExpanded: Boolean
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
