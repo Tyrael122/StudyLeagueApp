@@ -43,21 +43,28 @@ fun GlobalStatsScreen() {
             )
         }
 
-        val items = listOf(
-            listOf("Revisões semanais", "59"),
+        val globalItems = listOf(
+            listOf("Revisões totais", "59"),
             listOf("Questões totais", "1234"),
             listOf("Horas totais", "234")
         )
 
-        Accordion(title = "Geral", initialExpandedState = true, body = {
+
+        val weeeklyItems = listOf(
+            listOf("Revisões semanais", "59"),
+            listOf("Questões semanais", "1234"),
+            listOf("Horas semanais", "234")
+        )
+
+        Accordion(title = "Total", initialExpandedState = true, body = {
             TextRow(
-                items = items
+                items = globalItems
             )
         })
 
         Accordion(title = "Semanal", body = {
             TextRow(
-                items = items
+                items = weeeklyItems
             )
         })
     }

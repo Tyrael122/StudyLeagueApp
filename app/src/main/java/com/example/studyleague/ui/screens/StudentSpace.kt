@@ -172,7 +172,7 @@ fun createNavigationItems(navController: NavHostController): List<NavigationItem
 
 enum class StudentScreen(val icon: ImageVector, val label: String) {
     GLOBAL_STATS(
-        Icons.Filled.House, "Geral"
+        Icons.Filled.House, "Total"
     ),
     DAILY_STATS(Icons.Filled.House, "Diário"), SCHEDULE(
         Icons.Filled.House, "Cronograma"
