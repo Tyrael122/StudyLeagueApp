@@ -56,7 +56,7 @@ fun DailyStatsScreen() {
             )
 
             StatisticsSquare(
-                title = "Nota semanal",
+                title = "Nota diária",
                 data = "6.3",
                 dataTextStyle = dataTextStyle.copy(color = Color(0xFFBA0000)),
                 titleTextStyle = titleTextStyle

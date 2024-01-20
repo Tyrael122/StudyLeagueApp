@@ -36,11 +36,11 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun DrawerContent(
+    modifier: Modifier = Modifier,
     items: List<NavigationItem>,
     currentRoute: String,
-    onLogout: () -> Unit,
+    onLogout: () -> Unit = {},
     closeDrawer: () -> Unit,
-    modifier: Modifier = Modifier,
     isCompactMode: Boolean = true,
 ) {
     ModalDrawerSheet(
@@ -78,15 +78,6 @@ fun DrawerContent(
                         modifier = Modifier.padding(horizontal = 25.dp, vertical = 10.dp)
                     )
                 }
-            }
-
-            if (!isCompactMode) {
-                LogoutButton(
-                    onClick = onLogout,
-                    modifier = Modifier
-                        .padding(horizontal = 25.dp)
-                        .padding(bottom = 35.dp)
-                )
             }
         }
     }

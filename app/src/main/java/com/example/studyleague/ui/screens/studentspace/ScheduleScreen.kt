@@ -123,7 +123,8 @@ fun ScheduleEntryInfoDialog(
                     NumberTextField(value = "4:30PM", onValueChange = {})
                 }
 
-                StudentDropdownMenu(options = availableSubjects,
+                StudentDropdownMenu(
+                    options = availableSubjects,
                     selectedOptionText = "",
                     onSelectionChanged = {},
                     placeholder = { Text("Escolha uma matéria") },
@@ -242,7 +243,7 @@ fun createPopUpProperties(isSearchable: Boolean): PopupProperties {
 fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     setFullscreenMode(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-    val verticalScrollState = rememberScrollState()
+    val verticalScrollState = rememberScrollState(500)
     val horizontalScrollState = rememberScrollState()
 
     var timeColumnWidth by remember { mutableIntStateOf(0) }
@@ -263,12 +264,12 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
         IconButton(
             onClick = onDone,
             colors = IconButtonDefaults.iconButtonColors(
-                containerColor = Color(0xFFC1C1C1)
+                containerColor = Color.Black,
+                contentColor = Color.White
             ),
             modifier = Modifier
                 .padding(bottom = 30.dp, end = 30.dp)
                 .size(50.dp)
-                .shadow(1.dp, RoundedCornerShape(50))
         ) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }
@@ -378,7 +379,8 @@ fun ScheduleGrid(
         .pointerInput(Unit) {
             detectTapGestures(onTap = {
                 onGridClick(
-                    DayOfWeek.entries[(it.x / weekDayWidth).toInt()], (it.y / hourHeight).toInt()
+                    DayOfWeek.entries[(it.x / weekDayWidth).toInt()],
+                    (it.y / hourHeight).toInt()
                 )
             })
         }, content = {

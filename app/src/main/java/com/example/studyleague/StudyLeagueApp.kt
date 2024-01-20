@@ -2,8 +2,6 @@ package com.example.studyleague
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -20,10 +18,8 @@ import com.example.studyleague.ui.screens.onboarding.OnboardingScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 enum class Screen {

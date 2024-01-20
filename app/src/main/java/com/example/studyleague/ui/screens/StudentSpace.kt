@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -75,6 +76,8 @@ fun StudentSpace(
                     .padding(it)
                     .fillMaxSize()
             ) {
+                TopBarTitle.setTitle("Direito") // Default title
+
                 StudentNavGraph(
                     navController = navController,
                     startDestination = if (hasCompletedOnboarding) StudentScreen.GLOBAL_STATS.name else StudentScreen.SUBJECTS_TABLE.name
@@ -128,7 +131,6 @@ fun StudentNavigationDrawer(
         DrawerContent(items = navigationItems,
             currentRoute = currentRoute,
             isCompactMode = isCompactMode,
-            onLogout = { /*TODO*/ },
             closeDrawer = {
                 scope.launch {
                     drawerState.close()

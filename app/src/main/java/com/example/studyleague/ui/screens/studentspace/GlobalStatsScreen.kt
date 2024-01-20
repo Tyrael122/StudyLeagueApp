@@ -9,7 +9,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studyleague.ui.components.Accordion
-import com.example.studyleague.ui.components.AccordionBody.TextRow
+import com.example.studyleague.ui.components.Accordion.TextRow
 import com.example.studyleague.ui.components.StatisticsSquare
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 

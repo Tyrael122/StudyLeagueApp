@@ -63,6 +63,6 @@ object TopBarTitleStyles {
     }
 
     fun medium(): TextStyle {
-        return TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        return TextStyle(fontWeight = FontWeight.Bold, fontSize = 25.sp)
     }
 }

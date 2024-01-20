@@ -2,8 +2,10 @@ package com.example.studyleague.ui.screens.studentspace
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.studyleague.ui.components.Accordion
-import com.example.studyleague.ui.components.AccordionBody
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.ProgressIndicator
 import com.example.studyleague.ui.components.TopBarTitle
@@ -86,11 +87,11 @@ fun SubjectUpdateScreen() {
         )
 
         Accordion(title = "Metas - Totais", body = {
-            AccordionBody.TextFieldRow(items = listOf(listOf("Questões", "12")), onValueChange = {})
+            Accordion.TextFieldRow(items = listOf(listOf("Questões", "12")), onValueChange = {})
         })
 
         Accordion(title = "Metas - Semanais", body = {
-            AccordionBody.TextFieldRow(items = listOf(
+            Accordion.TextFieldRow(items = listOf(
                 listOf("Horas", "12"), listOf("Revisões", "1234"), listOf("Questões", "12")
             ), onValueChange = {})
         })
@@ -104,8 +105,14 @@ fun SubjectStatsScreen() {
     ) {
         Accordion(title = "Total", initialExpandedState = true, body = {
             ProgressIndicator(header = "Questões", total = 1000, current = 234)
-            ProgressIndicator(header = "Horas", total = 232, current = 123)
-            ProgressIndicator(header = "Revisões", total = 100, current = 12)
+
+            Spacer(Modifier.height(3.dp))
+
+            Accordion.TextRow(
+                items = listOf(
+                    listOf("Horas", "12"), listOf("Revisões", "1234")
+                )
+            )
         })
 
         Accordion(title = "Semanal", initialExpandedState = true, body = {

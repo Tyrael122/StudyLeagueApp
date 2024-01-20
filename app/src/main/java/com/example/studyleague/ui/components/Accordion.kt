@@ -2,8 +2,10 @@ package com.example.studyleague.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +17,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,21 +47,26 @@ fun Accordion(
             .fillMaxWidth()
             .shadow(5.dp, RoundedCornerShape(10.dp))
             .background(Color.White)
-            .padding(horizontal = 10.dp)
     ) {
-        AccordionHeader(
-            title = title,
+        val horizontalPadding = 10.dp
+
+        AccordionHeader(title = title,
             isExpanded = isExpanded,
-            onExpandedChange = { isExpanded = it })
+            paddingValues = PaddingValues(horizontal = horizontalPadding),
+            modifier = Modifier
+                .clickable {
+                    isExpanded = !isExpanded
+                }
+                .padding(horizontal = horizontalPadding))
 
         AnimatedVisibility(visible = isExpanded) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(bottom = 10.dp)
+                modifier = Modifier
+                    .padding(bottom = 10.dp)
+                    .padding(horizontal = horizontalPadding)
             ) {
-                Divider(
-                    color = Color(0x40000000), modifier = Modifier.fillMaxWidth()
-                )
+                Accordion.Divider()
 
                 body()
             }
@@ -70,30 +76,34 @@ fun Accordion(
 
 @Composable
 private fun AccordionHeader(
-    title: String, isExpanded: Boolean, onExpandedChange: (Boolean) -> Unit
+    modifier: Modifier = Modifier,
+    title: String,
+    isExpanded: Boolean,
+    paddingValues: PaddingValues = PaddingValues()
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(title, fontSize = 16.sp, fontWeight = FontWeight.Light)
 
-        IconButton(onClick = { onExpandedChange(!isExpanded) }) {
-            Icon(
-                if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = Color(0x80000000),
-            )
-        }
+        Icon(
+            if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+            contentDescription = null,
+            tint = Color(0x80000000),
+            modifier = Modifier.padding(vertical = 12.dp)
+        )
     }
 }
 
-object AccordionBody {
+object Accordion {
+    private val defaultVerticalSpacing = 15.dp
+
     @Composable
     fun TextRow(items: List<List<String>>) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(defaultVerticalSpacing),
         ) {
             val textStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
 
@@ -114,7 +124,7 @@ object AccordionBody {
     @Composable
     fun TextFieldRow(items: List<List<String>>, onValueChange: (String) -> Unit) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(defaultVerticalSpacing),
         ) {
             val textStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
 
@@ -138,5 +148,12 @@ object AccordionBody {
                 }
             }
         }
+    }
+
+    @Composable
+    fun Divider(modifier: Modifier = Modifier) {
+        Divider(
+            color = Color(0x40000000), modifier = modifier.fillMaxWidth()
+        )
     }
 }
