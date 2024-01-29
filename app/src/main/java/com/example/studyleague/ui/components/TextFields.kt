@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -107,6 +109,21 @@ fun DefaultOutlinedTextField(
         })
 }
 
+
+@Composable
+fun NumberText(
+    modifier: Modifier = Modifier,
+    text: String,
+    textStyle: TextStyle = TextStyle(
+        fontSize = 16.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center, color = Color.Black
+    ),
+) {
+    Text(
+        text = text, style = textStyle,
+        modifier = modifier
+    )
+}
+
 @Composable
 fun NumberTextField(
     modifier: Modifier = Modifier,
@@ -116,15 +133,13 @@ fun NumberTextField(
         fontSize = 16.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center
     ),
 ) {
-    BasicTextField(
-        value = value, onValueChange = onValueChange, textStyle = textStyle, modifier = modifier
-            .width(75.dp)
-            .border(
-                BorderStroke(1.dp, Color.Black), RoundedCornerShape(10.dp)
-            )
-            .background(Color.White, RoundedCornerShape(10.dp))
-            .padding(vertical = 7.dp)
-    )
+    Box(modifier = modifier) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = textStyle,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

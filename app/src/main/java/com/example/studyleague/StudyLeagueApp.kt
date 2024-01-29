@@ -34,11 +34,13 @@ fun StudyLeagueApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
+//    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
+    val hasCompletedOnboarding = false
 
     NavHost(
         navController = navController,
-        startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
+//        startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
+        startDestination = StudentScreen.SCHEDULE.name
     ) {
         composable(Screen.ONBOARDING.name) {
             OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })

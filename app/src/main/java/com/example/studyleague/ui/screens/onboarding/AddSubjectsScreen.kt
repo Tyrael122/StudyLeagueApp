@@ -6,11 +6,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,18 +47,40 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
 
             Spacer(Modifier.height(30.dp))
 
-            val subjects = listOf("Direito constitucional", "Medicina", "Física quântica", "")
+            val subjects = remember {
+                mutableStateListOf("Direito constitucional", "Medicina", "Física quântica")
+            }
+
+            var currentSubject by remember { mutableStateOf("") }
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(25.dp),
                 modifier = Modifier.padding(horizontal = 10.dp)
             ) {
-                subjects.forEach {
-                    DefaultOutlinedTextField(value = it, onValueChange = { }, placeholder = {
-                        Text("Escreva aqui sua matéria")
-                    }, modifier = Modifier.fillMaxWidth()
+                val placeholder = @Composable {
+                    Text("Escreva aqui sua matéria")
+                }
+
+                subjects.forEachIndexed { index, it ->
+                    DefaultOutlinedTextField(
+                        value = it,
+                        onValueChange = { subjects[index] = it },
+                        placeholder = placeholder,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
+
+                DefaultOutlinedTextField(
+                    value = currentSubject,
+                    onValueChange = { currentSubject = it },
+                    placeholder = placeholder,
+                    keyboardActions = KeyboardActions(onDone = {
+                        subjects.add(currentSubject)
+                        currentSubject = ""
+                    }),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
