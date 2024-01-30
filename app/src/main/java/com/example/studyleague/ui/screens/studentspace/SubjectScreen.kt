@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
@@ -18,7 +19,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -31,12 +36,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import br.studyleague.dtos.enums.StatisticType
+import com.example.studyleague.LocalStudentViewModel
+import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.Accordion
+import com.example.studyleague.ui.components.DefaultIconButtom
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.ProgressIndicator
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.TopBarTitleStyles
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
+import kotlin.math.roundToInt
 
 
 enum class SubjectScreens(val icon: ImageVector, val label: String) {
@@ -45,7 +55,11 @@ enum class SubjectScreens(val icon: ImageVector, val label: String) {
 
 @Composable
 fun SubjectScreen() {
-    TopBarTitle.setTitle("Direito constitucional", TopBarTitleStyles.medium())
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+    val selectedSubject = uiState.selectedSubject
+
+    TopBarTitle.setTitle(selectedSubject.subjectDTO.name, TopBarTitleStyles.medium())
 
     val navController = rememberNavController()
 
@@ -65,61 +79,115 @@ fun SubjectScreen() {
                 .padding(it)
         ) {
             composable(SubjectScreens.UPDATE.name) {
-                SubjectUpdateScreen()
+                SubjectUpdateScreen(selectedSubject = selectedSubject)
             }
 
             composable(SubjectScreens.STATS.name) {
-                SubjectStatsScreen()
+                SubjectStatsScreen(selectedSubject = selectedSubject)
             }
         }
     }
 }
 
 @Composable
-fun SubjectUpdateScreen() {
-    StudentSpaceDefaultColumn(
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        DefaultOutlinedTextField(value = "",
-            onValueChange = {},
-            placeholder = { Text("Nome") },
-            modifier = Modifier.fillMaxWidth()
-        )
+fun SubjectUpdateScreen(selectedSubject: Subject) {
+    val studentViewModel = LocalStudentViewModel.current
 
-        Accordion(title = "Metas - Totais", body = {
-            Accordion.TextFieldRow(items = listOf(listOf("Questões", "12")), onValueChange = {})
-        })
+    var subjectName by remember { mutableStateOf(selectedSubject.subjectDTO.name) }
 
-        Accordion(title = "Metas - Semanais", body = {
-            Accordion.TextFieldRow(items = listOf(
-                listOf("Horas", "12"), listOf("Revisões", "1234"), listOf("Questões", "12")
-            ), onValueChange = {})
-        })
+    val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
+    val allTimeGoals = listOf(
+        mutableListOf("Horas", allTimeGoal.hours.toString()),
+        mutableListOf("Questões", allTimeGoal.questions.toString()),
+        mutableListOf("Revisões", allTimeGoal.reviews.toString()),
+    )
+
+    val weeklyGoal = selectedSubject.subjectDTO.weeklyGoals
+    val weeklyGoals = listOf(
+        mutableListOf("Questões", weeklyGoal.hours.toString()),
+        mutableListOf("Revisões", weeklyGoal.reviews.toString()),
+    )
+
+    Scaffold(floatingActionButton = {
+        DefaultIconButtom(onClick = {
+            studentViewModel.updateSelectedSubjectName(subjectName)
+            studentViewModel.updateSelectedSubjectAlltimeGoals(allTimeGoals.map { it[1].toFloat() })
+            studentViewModel.updateSelectedSubjectWeeklyGoals(allTimeGoals.map { it[1].toFloat() })
+        }) {
+            Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
+        }
+    }) { paddingValues ->
+        StudentSpaceDefaultColumn(
+            modifier = Modifier.padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            DefaultOutlinedTextField(
+                value = subjectName,
+                onValueChange = { subjectName = it },
+                placeholder = { Text("Nome") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Accordion(title = "Metas - Totais", body = {
+                Accordion.TextFieldRow(items = allTimeGoals, onValueChange = { index, string ->
+                    allTimeGoals[index][1] = string
+                })
+            })
+
+            Accordion(title = "Metas - Semanais", body = {
+                Accordion.TextRow(items = listOf(listOf("Horas", weeklyGoal.hours.toString())))
+
+                Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
+                    weeklyGoals[index][1] = string
+                })
+            })
+        }
     }
 }
 
 @Composable
-fun SubjectStatsScreen() {
+fun SubjectStatsScreen(selectedSubject: Subject) {
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Accordion(title = "Total", initialExpandedState = true, body = {
-            ProgressIndicator(header = "Questões", total = 1000, current = 234)
+        Accordion(title = "Total", startsExpanded = true, body = {
+            val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
+            val allTimeStats = selectedSubject.subjectDTO.allTimeStatistic
+
+            ProgressIndicator(
+                header = "Questões",
+                target = allTimeGoal.questions,
+                current = allTimeStats.questions
+            )
 
             Spacer(Modifier.height(3.dp))
 
             Accordion.TextRow(
                 items = listOf(
-                    listOf("Horas", "12"), listOf("Revisões", "1234")
+                    listOf("Horas", allTimeStats.hours.toString()),
+                    listOf("Revisões", allTimeStats.reviews.toString())
                 )
             )
         })
 
-        Accordion(title = "Semanal", initialExpandedState = true, body = {
+        Accordion(title = "Semanal", startsExpanded = true, body = {
+            val weeklyGoal = selectedSubject.subjectDTO.weeklyGoals
+            val weeklyStats = selectedSubject.subjectDTO.weeklyStatistic
+
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                ProgressIndicator(header = "Questões", total = 100, current = 23)
-                ProgressIndicator(header = "Horas", total = 100, current = 50)
-                ProgressIndicator(header = "Revisões", total = 100, current = 74)
+                ProgressIndicator(
+                    header = "Questões",
+                    target = weeklyGoal.questions,
+                    current = weeklyStats.questions
+                )
+                ProgressIndicator(
+                    header = "Horas",
+                    target = weeklyGoal.hours.roundToInt(),
+                    current = weeklyStats.hours.roundToInt()
+                )
+                ProgressIndicator(
+                    header = "Revisões", target = weeklyGoal.reviews, current = weeklyStats.reviews
+                )
             }
         })
     }

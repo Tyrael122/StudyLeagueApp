@@ -270,7 +270,7 @@ fun Color.Companion.randomReadableColor(): Color {
     var luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255
 
     // Ensure sufficient luminance for readability
-    while (luminance < 0.3) {
+    while (luminance < 0.1) {
         red = random.nextInt(256)
         green = random.nextInt(256)
         blue = random.nextInt(256)

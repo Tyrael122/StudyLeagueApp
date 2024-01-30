@@ -22,11 +22,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.studyleague.dtos.SubjectDTO
+import com.example.studyleague.LocalStudentViewModel
+import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.OnboardingButton
 
 @Composable
 fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
+    val subjects = remember {
+        mutableStateListOf("Direito constitucional")
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -46,10 +53,6 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
             )
 
             Spacer(Modifier.height(30.dp))
-
-            val subjects = remember {
-                mutableStateListOf("Direito constitucional", "Medicina", "Física quântica")
-            }
 
             var currentSubject by remember { mutableStateOf("") }
 
@@ -84,6 +87,16 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
             }
         }
 
-        OnboardingButton(onClick = navigateToNextScreen, text = "CONTINUAR")
+        val studentViewModel = LocalStudentViewModel.current
+        OnboardingButton(onClick = {
+            studentViewModel.updateSubjects(subjects = subjects.map {
+                val subjectDto = SubjectDTO()
+                subjectDto.name = it
+
+                Subject(subjectDTO = subjectDto)
+            })
+
+            navigateToNextScreen()
+        }, text = "CONTINUAR")
     }
 }

@@ -3,9 +3,12 @@ package com.example.studyleague.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,5 +40,17 @@ fun NumberButton(modifier: Modifier = Modifier, onClick: () -> Unit, text: @Comp
         modifier = modifier
     ) {
         text()
+    }
+}
+
+@Composable
+fun DefaultIconButtom(modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable () -> Unit) {
+    IconButton(
+        onClick = onClick, colors = IconButtonDefaults.iconButtonColors(
+            containerColor = Color.Black, contentColor = Color.White
+        ), modifier = modifier
+            .size(50.dp)
+    ) {
+        content()
     }
 }

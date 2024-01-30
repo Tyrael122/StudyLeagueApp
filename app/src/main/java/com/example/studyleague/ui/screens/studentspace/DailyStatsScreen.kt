@@ -18,6 +18,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,22 +27,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.StatisticsSquare
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.datagrid.DataGrid
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
+import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyStatsScreen() {
-    TopBarTitle.setTitle("Segunda")
+    val currentDay = LocalDate.now()
+    val currentDayOfWeek = currentDay.dayOfWeek
+    TopBarTitle.setTitle(
+        currentDayOfWeek.getDisplayName(
+            java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
+        )
+    )
+
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+
+    val studentStats = uiState.studentStats.studentStatisticsDTO
 
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -57,23 +72,25 @@ fun DailyStatsScreen() {
 
             StatisticsSquare(
                 title = "Nota diária",
-                data = "6.3",
+                data = studentStats.dailyGrade.toString(),
                 dataTextStyle = dataTextStyle.copy(color = Color(0xFFBA0000)),
                 titleTextStyle = titleTextStyle
             )
 
             StatisticsSquare(
                 title = "Metas batidas",
-                data = "12/20",
+                data = "${studentStats.hoursGoalsCompleted}/${uiState.subjects.size}",
                 dataTextStyle = dataTextStyle,
                 titleTextStyle = titleTextStyle
             )
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            StatisticsSquare(title = "Revisões", data = "12")
-            StatisticsSquare(title = "Questões", data = "1234")
-            StatisticsSquare(title = "Horas", data = "234")
+            val dailyStudentStats = studentStats.dailyStatistic
+
+            StatisticsSquare(title = "Horas", data = dailyStudentStats.hours.toString())
+            StatisticsSquare(title = "Questões", data = dailyStudentStats.questions.toString())
+            StatisticsSquare(title = "Revisões", data = dailyStudentStats.reviews.toString())
         }
 
         var isBottomSheetVisible by remember { mutableStateOf(false) }
@@ -81,14 +98,26 @@ fun DailyStatsScreen() {
 
         DataGrid(isSearchBarVisible = false,
             columns = Subject.columns,
-            items = sampleSubjectList,
+            items = studentViewModel.fetchSubjectsOfDay(currentDay),
             onItemClick = {
+                studentViewModel.selectSubject(it)
+
                 isBottomSheetVisible = true
             })
 
         if (isBottomSheetVisible) {
+            val selectedSubjectDailyStats = uiState.selectedSubject.subjectDTO.dailyStatistic
+
+            val data = listOf(
+                mutableListOf("Horas estudadas", selectedSubjectDailyStats.hours.toString()),
+                mutableListOf("Questões", selectedSubjectDailyStats.questions.toString()),
+                mutableListOf("Revisões", selectedSubjectDailyStats.reviews.toString()),
+            )
+
             ModalBottomSheet(
                 containerColor = Color.White, onDismissRequest = {
+                    studentViewModel.updateSubjectDailyStats(data.map { it[1].toFloat() })
+
                     isBottomSheetVisible = false
                 }, sheetState = sheetState
             ) {
@@ -99,13 +128,7 @@ fun DailyStatsScreen() {
                         .fillMaxHeight(0.75F)
                         .padding(horizontal = 20.dp)
                 ) {
-                    val data = listOf(
-                        listOf("Questões", "10"),
-                        listOf("Revisões", "12"),
-                        listOf("Horas estudadas", "2.5"),
-                    )
-
-                    data.forEach {
+                    data.forEach { stringList ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -117,17 +140,20 @@ fun DailyStatsScreen() {
                                 .padding(horizontal = 20.dp)
                         ) {
                             Text(
-                                it[0], color = Color(0xFF545454), style = TextStyle(
+                                stringList[0], color = Color(0xFF545454), style = TextStyle(
                                     fontSize = 18.sp, fontWeight = FontWeight.SemiBold
                                 )
                             )
 
                             BasicTextField(
-                                value = it[1], onValueChange = {}, textStyle = TextStyle(
+                                value = stringList[1],
+                                onValueChange = { stringList[1] = it },
+                                textStyle = TextStyle(
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Normal,
                                     textAlign = TextAlign.Center
-                                ), modifier = Modifier
+                                ),
+                                modifier = Modifier
                                     .width(40.dp)
                                     .border(
                                         BorderStroke(1.dp, Color.Black), RoundedCornerShape(10.dp)

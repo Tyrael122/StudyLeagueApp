@@ -37,9 +37,9 @@ fun Accordion(
     modifier: Modifier = Modifier,
     title: String,
     body: @Composable () -> Unit,
-    initialExpandedState: Boolean = false
+    startsExpanded: Boolean = false
 ) {
-    var isExpanded by remember { mutableStateOf(initialExpandedState) }
+    var isExpanded by remember { mutableStateOf(startsExpanded) }
 
     Column(
         modifier = modifier
@@ -53,9 +53,7 @@ fun Accordion(
             .clickable {
                 isExpanded = !isExpanded
             }
-            .padding(horizontal = horizontalPadding),
-            title = title,
-            isExpanded = isExpanded)
+            .padding(horizontal = horizontalPadding), title = title, isExpanded = isExpanded)
 
         AnimatedVisibility(visible = isExpanded) {
             Column(
@@ -74,9 +72,7 @@ fun Accordion(
 
 @Composable
 private fun AccordionHeader(
-    modifier: Modifier = Modifier,
-    title: String,
-    isExpanded: Boolean
+    modifier: Modifier = Modifier, title: String, isExpanded: Boolean
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -119,23 +115,23 @@ object Accordion {
     }
 
     @Composable
-    fun TextFieldRow(items: List<List<String>>, onValueChange: (String) -> Unit) {
+    fun TextFieldRow(items: List<List<String>>, onValueChange: (Int, String) -> Unit) {
         Column(
             verticalArrangement = Arrangement.spacedBy(defaultVerticalSpacing),
         ) {
             val textStyle = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium)
 
-            items.forEach {
+            items.forEachIndexed { index, strings ->
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(it[0], style = textStyle)
+                    Text(strings[0], style = textStyle)
 
                     BasicTextField(
-                        value = it[1],
-                        onValueChange = onValueChange,
+                        value = strings[1],
+                        onValueChange = { onValueChange(index, it) },
                         textStyle = textStyle.copy(textAlign = TextAlign.Center),
                         modifier = Modifier
                             .width(64.dp)

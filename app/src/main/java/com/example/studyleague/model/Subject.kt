@@ -1,22 +1,25 @@
 package com.example.studyleague.model
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import br.studyleague.dtos.SubjectDTO
 import com.example.studyleague.ui.components.datagrid.DataGridColumnProperties
 import com.example.studyleague.ui.components.datagrid.DataGridRowContent
 import com.example.studyleague.ui.components.datagrid.DataGridView
+import com.example.studyleague.ui.components.randomReadableColor
 
 data class Subject(
-    val id: Long = 0,
-    val name: String = "",
-    val workload: Int = 0,
-    val studiedHours: Float = 0F,
-    val completedQuestionsPercentage: Int = 0,
+    val subjectDTO: SubjectDTO = SubjectDTO(),
+//    val name: String by subjectDTO::name,
+    val color: Color = Color.randomReadableColor(),
 ) : DataGridView {
 
     override fun toDataGridView(): DataGridRowContent {
         return DataGridRowContent(
             listOf(
-                this.name, this.studiedHours.toString(), this.workload.toString()
+                this.subjectDTO.name,
+                this.subjectDTO.allTimeStatistic.hours.toString(),
+                "0" // TODO: Workload here.
             )
         )
     }

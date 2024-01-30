@@ -2,12 +2,15 @@ package com.example.studyleague
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +21,7 @@ import com.example.studyleague.ui.screens.onboarding.OnboardingScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
+import com.example.studyleague.ui.viewmodels.StudentViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -29,6 +33,8 @@ enum class Screen {
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 val hasCompletedOnboardingKey = booleanPreferencesKey("hasCompletedOnboarding")
 
+val LocalStudentViewModel = compositionLocalOf { StudentViewModel() }
+
 @Composable
 fun StudyLeagueApp() {
     val navController = rememberNavController()
@@ -37,36 +43,44 @@ fun StudyLeagueApp() {
 //    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
     val hasCompletedOnboarding = false
 
-    NavHost(
-        navController = navController,
+    val studentViewModel: StudentViewModel = viewModel()
+
+    CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
+        NavHost(
+            navController = navController,
 //        startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
-        startDestination = StudentScreen.SCHEDULE.name
-    ) {
-        composable(Screen.ONBOARDING.name) {
-            OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
-        }
+            startDestination = Screen.ONBOARDING.name
+        ) {
+            composable(Screen.ONBOARDING.name) {
+                OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
+            }
 
-        composable(Screen.ADD_SUBJECTS.name) {
-            AddSubjectsScreen(navigateToNextScreen = { navController.navigate(Screen.SCHEDULE_EXPLANATION.name) })
-        }
+            composable(Screen.ADD_SUBJECTS.name) {
+                AddSubjectsScreen(navigateToNextScreen = { navController.navigate(Screen.SCHEDULE_EXPLANATION.name) })
+            }
 
-        composable(Screen.SCHEDULE_EXPLANATION.name) {
-            ScheduleExplanationScreen(navigateToNextScreen = { navController.navigate(StudentScreen.SCHEDULE.name) })
-        }
+            composable(Screen.SCHEDULE_EXPLANATION.name) {
+                ScheduleExplanationScreen(navigateToNextScreen = { navController.navigate(StudentScreen.SCHEDULE.name) })
+            }
 
-        composable(StudentScreen.SCHEDULE.name) {
-            ScheduleScreen(onDone = { navController.navigate(Screen.GOALS_EXPLANATION.name) })
-        }
+            composable(StudentScreen.SCHEDULE.name) {
+                ScheduleScreen(onDone = { navController.navigate(Screen.GOALS_EXPLANATION.name) })
+            }
 
-        composable(Screen.GOALS_EXPLANATION.name) {
-            GoalsExplanationScreen(navigateToNextScreen = { navController.navigate(Screen.STUDENT_SPACE.name) })
-        }
+            composable(Screen.GOALS_EXPLANATION.name) {
+                GoalsExplanationScreen(navigateToNextScreen = { navController.navigate(Screen.STUDENT_SPACE.name) })
+            }
 
-        composable(Screen.STUDENT_SPACE.name) {
-            StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
+            composable(Screen.STUDENT_SPACE.name) {
+                StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
 
-            if (!hasCompletedOnboarding) {
-                runBlocking { setBooleanValueFromDataStore(true, context, hasCompletedOnboardingKey) }
+                if (!hasCompletedOnboarding) {
+                    runBlocking {
+                        setBooleanValueFromDataStore(
+                            true, context, hasCompletedOnboardingKey
+                        )
+                    }
+                }
             }
         }
     }
