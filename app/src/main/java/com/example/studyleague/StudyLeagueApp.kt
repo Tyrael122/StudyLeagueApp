@@ -1,19 +1,15 @@
 package com.example.studyleague
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.studyleague.data.DataStoreManager
+import com.example.studyleague.ui.StudentViewModel
 import com.example.studyleague.ui.screens.StudentScreen
 import com.example.studyleague.ui.screens.StudentSpace
 import com.example.studyleague.ui.screens.onboarding.AddSubjectsScreen
@@ -21,19 +17,12 @@ import com.example.studyleague.ui.screens.onboarding.OnboardingScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
-import com.example.studyleague.ui.viewmodels.StudentViewModel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 
 enum class Screen {
     ONBOARDING, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
 }
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-val hasCompletedOnboardingKey = booleanPreferencesKey("hasCompletedOnboarding")
-
-val LocalStudentViewModel = compositionLocalOf { StudentViewModel() }
+val LocalStudentViewModel = compositionLocalOf<StudentViewModel> { error("No StudentViewModel found!") }
 
 @Composable
 fun StudyLeagueApp() {
@@ -43,7 +32,7 @@ fun StudyLeagueApp() {
 //    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
     val hasCompletedOnboarding = false
 
-    val studentViewModel: StudentViewModel = viewModel()
+    val studentViewModel: StudentViewModel = viewModel(factory = StudentViewModel.factory(DataStoreManager(context)))
 
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
@@ -75,27 +64,13 @@ fun StudyLeagueApp() {
                 StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
 
                 if (!hasCompletedOnboarding) {
-                    runBlocking {
-                        setBooleanValueFromDataStore(
-                            true, context, hasCompletedOnboardingKey
-                        )
-                    }
+//                    runBlocking {
+//                        setDataStoreValue(
+//                            true, context, DataStoreKeys.hasCompletedOnboardingKey
+//                        )
+//                    }
                 }
             }
         }
-    }
-}
-
-suspend fun getBooleanValueFromDataStore(context: Context, key: Preferences.Key<Boolean>): Boolean {
-    return context.dataStore.data.map { preferences ->
-        preferences[key] ?: false
-    }.first()
-}
-
-suspend fun setBooleanValueFromDataStore(
-    newValue: Boolean, context: Context, key: Preferences.Key<Boolean>
-) {
-    context.dataStore.edit { settings ->
-        settings[key] = newValue
     }
 }

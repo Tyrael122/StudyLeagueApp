@@ -1,6 +1,7 @@
 package com.example.studyleague.model
 
-import br.studyleague.dtos.student.StudentDTO
+import dtos.StudentDTO
+
 
 data class Student(
     val studentDTO: StudentDTO = StudentDTO(),
