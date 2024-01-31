@@ -5,9 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -34,9 +32,7 @@ class DataStoreManager(private val context: Context) {
     }
 }
 
-sealed class DataStoreKeys {
-    companion object {
-        val studentIdKey: Preferences.Key<Long> = longPreferencesKey("studentId")
-        val hasCompletedOnboardingKey: Preferences.Key<Boolean> = booleanPreferencesKey("hasCompletedOnboarding")
-    }
+object DataStoreKeys {
+    val studentIdKey: Preferences.Key<Long> = longPreferencesKey("studentId")
+    val hasCompletedOnboardingKey: Preferences.Key<Boolean> = booleanPreferencesKey("hasCompletedOnboarding")
 }

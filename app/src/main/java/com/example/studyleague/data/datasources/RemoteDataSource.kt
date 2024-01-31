@@ -1,7 +1,7 @@
 package com.example.studyleague.data.datasources
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dtos.StudentDTO
+import dtos.student.StudentDTO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

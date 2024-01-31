@@ -1,6 +1,6 @@
 package com.example.studyleague.model
 
-import dtos.StudentDTO
+import dtos.student.StudentDTO
 
 
 data class Student(

@@ -1,7 +1,7 @@
 package com.example.studyleague.data.repositories
 
 import com.example.studyleague.data.datasources.RemoteDataSource
-import dtos.StudentDTO
+import dtos.student.StudentDTO
 
 class StudentRepository(
     private val remoteDataSource: RemoteDataSource
