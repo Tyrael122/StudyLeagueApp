@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.studyleague.model.Subject
+import dtos.student.schedule.ScheduleEntryDTO
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.format.TextStyle
@@ -258,7 +260,14 @@ data class ScheduleEntryData(
     val color: Color = Color.White,
     val content: String = "",
     val onClick: (ScheduleEntryData) -> Unit = {},
-)
+) {
+    fun toScheduleEntryDTO(subjects: List<Subject>) = ScheduleEntryDTO(
+        start = startTime,
+        end = endTime,
+        subjectId = subjects.find { it.subjectDTO.name == content }?.subjectDTO?.id
+            ?: throw IllegalArgumentException("Subject not found.")
+    )
+}
 
 fun Color.Companion.randomReadableColor(): Color {
     val random = Random.Default

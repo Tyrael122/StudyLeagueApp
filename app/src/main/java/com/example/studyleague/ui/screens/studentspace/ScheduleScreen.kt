@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,8 +18,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -62,7 +59,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     val studentViewModel = LocalStudentViewModel.current
     val studentUiState by studentViewModel.uiState.collectAsState()
 
-    val scheduleEntries = remember { studentViewModel.getScheduleEntries().toMutableList() }
+    val scheduleEntries = remember { studentViewModel.fetchScheduleEntries().toMutableList() }
 
     Scaffold(modifier = modifier, floatingActionButton = {
         DefaultIconButtom(
@@ -209,7 +206,7 @@ fun ScheduleEntryInfoDialog(
 
                     val subjectColor = availableSubjects.find {
                         it.subjectDTO.name == copiedScheduleEntry.content
-                    }?.color ?: throw Exception("Subject not found")
+                    }?.color ?: throw IllegalArgumentException("Subject not found")
 
                     onDone(
                         copiedScheduleEntry.copy(color = subjectColor)

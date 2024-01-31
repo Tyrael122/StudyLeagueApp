@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.studyleague.data.DataStoreKeys
 import com.example.studyleague.data.DataStoreManager
 import com.example.studyleague.data.datasources.RemoteDataSource
 import com.example.studyleague.data.repositories.StudentRepository
@@ -13,10 +14,14 @@ import com.example.studyleague.model.Student
 import com.example.studyleague.model.StudentStats
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.ScheduleEntryData
+import dtos.student.StudentDTO
+import dtos.student.schedule.ScheduleDTO
+import dtos.student.schedule.StudyDayDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 
 class StudentViewModel(
@@ -36,25 +41,87 @@ class StudentViewModel(
 //            } else {
 //                fetchStudent(studentId)
 //            }
+        }
 
-            fetchStudent(1)
+        fetchStudent(1)
+    }
+
+    fun addSubjects(subjects: List<Subject>) {
+        val subjectsDto = subjects.map { it.subjectDTO }
+        val studentId = uiState.value.student.studentDTO.id
+
+        viewModelScope.launch {
+            studentRepository.addSubjects(studentId, subjectsDto)
+
+            fetchAllSubjects()
         }
     }
 
-    fun updateSubjects(subjects: List<Subject>) {
-        // TODO: Make a request to the API.
+    private fun fetchAllSubjects() {
+        val studentId = uiState.value.student.studentDTO.id
+        val currentDate = uiState.value.currentDate
+
+        viewModelScope.launch {
+            val subjectsDto = studentRepository.fetchAllSubjects(studentId, currentDate)
+            val subjects = subjectsDto.map { Subject(subjectDTO = it) }
+
+            _uiState.update {
+                it.copy(subjects = subjects)
+            }
+        }
     }
 
     fun updateScheduleEntries(scheduleEntries: List<ScheduleEntryData>) {
-        val currentScheduleEntries = getScheduleEntries()
+        val currentScheduleEntries = fetchScheduleEntries()
         if (currentScheduleEntries.containsAll(scheduleEntries) && currentScheduleEntries.size == scheduleEntries.size) {
             return
         }
 
+        val subjects = uiState.value.subjects
+
+        val studyDays = scheduleEntries.groupBy { it.dayOfWeek }
+        val studyDaysDto = studyDays.map { (day, entries) ->
+            StudyDayDTO(day, entries.map { it.toScheduleEntryDTO(subjects) })
+        }
+
+        val scheduleDto = ScheduleDTO(studyDaysDto)
+
+        viewModelScope.launch {
+            studentRepository.updateSchedule(uiState.value.student.studentDTO.id, scheduleDto)
+        }
+    }
+
+    fun fetchScheduleEntries(): List<ScheduleEntryData> {
+        runBlocking {
+            val scheduleDTO = studentRepository.fetchSchedule(uiState.value.student.studentDTO.id)
+            _uiState.update {
+                it.copy(schedule = Schedule(scheduleDTO = scheduleDTO))
+            }
+        }
+
+        val listOfScheduleEntries = mutableListOf<ScheduleEntryData>()
+
+        for (day in uiState.value.schedule.scheduleDTO.days) {
+            for (scheduleEntry in day.schedule) {
+                listOfScheduleEntries.add(
+                    ScheduleEntryData(
+                        content = findSubjectById(scheduleEntry.subjectId).subjectDTO.name,
+                        startTime = scheduleEntry.start,
+                        endTime = scheduleEntry.end,
+                        dayOfWeek = day.dayOfWeek
+                    )
+                )
+            }
+        }
+
+        return listOfScheduleEntries
+    }
+
+    fun fetchStudentStats() {
         // TODO: Make a request to the API.
     }
 
-    fun fetchSubjectsOfDay(date: LocalDate): List<Subject> {
+    fun fetchScheduledSubjectsForDay(): List<Subject> {
         // TODO: Make a request to the API.
         return emptyList()
     }
@@ -92,32 +159,21 @@ class StudentViewModel(
         }
     }
 
-    fun getScheduleEntries(): List<ScheduleEntryData> {
-        val listOfScheduleEntries = mutableListOf<ScheduleEntryData>()
-
-        for (day in uiState.value.schedule.scheduleDTO.days) {
-            for (scheduleEntry in day.schedule) {
-                listOfScheduleEntries.add(
-                    ScheduleEntryData(
-                        content = findSubjectById(scheduleEntry.subjectId).subjectDTO.name,
-                        startTime = scheduleEntry.start,
-                        endTime = scheduleEntry.end,
-                        dayOfWeek = day.dayOfWeek
-                    )
-                )
-            }
-        }
-
-        return listOfScheduleEntries
-    }
-
     private fun findSubjectById(subjectId: Long): Subject {
         return uiState.value.subjects.find { it.subjectDTO.id == subjectId }
             ?: throw IllegalArgumentException("Subject not found.")
     }
 
     private fun createStudent() {
+        viewModelScope.launch {
+            val studentDTO = studentRepository.createStudent(StudentDTO())
 
+            _uiState.update {
+                it.copy(student = Student(studentDTO = studentDTO))
+            }
+
+            dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+        }
     }
 
     private fun fetchStudent(studentId: Long) {
@@ -145,5 +201,6 @@ data class StudentUiState(
     val schedule: Schedule = Schedule(),
     val selectedSubject: Subject = Subject(),
     val student: Student = Student(),
-    val studentStats: StudentStats = StudentStats()
+    val studentStats: StudentStats = StudentStats(),
+    val currentDate: LocalDate = LocalDate.now()
 )

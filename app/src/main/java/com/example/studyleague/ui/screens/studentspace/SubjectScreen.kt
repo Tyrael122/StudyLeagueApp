@@ -36,7 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import br.studyleague.dtos.enums.StatisticType
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.Accordion

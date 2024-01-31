@@ -2,11 +2,11 @@ package com.example.studyleague.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import br.studyleague.dtos.SubjectDTO
 import com.example.studyleague.ui.components.datagrid.DataGridColumnProperties
 import com.example.studyleague.ui.components.datagrid.DataGridRowContent
 import com.example.studyleague.ui.components.datagrid.DataGridView
 import com.example.studyleague.ui.components.randomReadableColor
+import dtos.SubjectDTO
 
 data class Subject(
     val subjectDTO: SubjectDTO = SubjectDTO(),

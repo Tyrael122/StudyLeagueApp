@@ -39,22 +39,21 @@ import com.example.studyleague.ui.components.StatisticsSquare
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.datagrid.DataGrid
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
-import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyStatsScreen() {
-    val currentDay = LocalDate.now()
-    val currentDayOfWeek = currentDay.dayOfWeek
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+
+    val currentDayOfWeek = uiState.currentDate.dayOfWeek
     TopBarTitle.setTitle(
         currentDayOfWeek.getDisplayName(
             java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
         )
     )
 
-    val studentViewModel = LocalStudentViewModel.current
-    val uiState by studentViewModel.uiState.collectAsState()
 
     val studentStats = uiState.studentStats.studentStatisticsDTO
 
@@ -98,7 +97,7 @@ fun DailyStatsScreen() {
 
         DataGrid(isSearchBarVisible = false,
             columns = Subject.columns,
-            items = studentViewModel.fetchSubjectsOfDay(currentDay),
+            items = studentViewModel.fetchScheduledSubjectsForDay(),
             onItemClick = {
                 studentViewModel.selectSubject(it)
 

@@ -24,7 +24,7 @@ class DataStoreManager(private val context: Context) {
     }
 
     suspend fun <T> setDataStoreValue(
-        newValue: T, key: Preferences.Key<T>
+        key: Preferences.Key<T>, newValue: T
     ) {
         context.dataStore.edit { settings ->
             settings[key] = newValue
@@ -34,5 +34,6 @@ class DataStoreManager(private val context: Context) {
 
 object DataStoreKeys {
     val studentIdKey: Preferences.Key<Long> = longPreferencesKey("studentId")
-    val hasCompletedOnboardingKey: Preferences.Key<Boolean> = booleanPreferencesKey("hasCompletedOnboarding")
+    val hasCompletedOnboardingKey: Preferences.Key<Boolean> =
+        booleanPreferencesKey("hasCompletedOnboarding")
 }

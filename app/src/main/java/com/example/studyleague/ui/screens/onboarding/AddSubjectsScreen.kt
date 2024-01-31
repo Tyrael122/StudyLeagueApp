@@ -22,11 +22,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.studyleague.dtos.SubjectDTO
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.OnboardingButton
+import dtos.SubjectDTO
 
 @Composable
 fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
@@ -89,7 +89,7 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
 
         val studentViewModel = LocalStudentViewModel.current
         OnboardingButton(onClick = {
-            studentViewModel.updateSubjects(subjects = subjects.map {
+            studentViewModel.addSubjects(subjects = subjects.map {
                 val subjectDto = SubjectDTO()
                 subjectDto.name = it
 
