@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ProgressIndicator(modifier: Modifier = Modifier, header: String, target: Int, current: Int) {
-    val progress = current / target
+    val progress = if (target == 0) 0F else current / target.toFloat()
     val progressPercentage = (progress * 100)
 
     Column(verticalArrangement = Arrangement.spacedBy(5.dp), modifier = modifier.fillMaxWidth()) {
@@ -32,7 +32,7 @@ fun ProgressIndicator(modifier: Modifier = Modifier, header: String, target: Int
         }
 
         LinearProgressIndicator(
-            progress = progress.toFloat(),
+            progress = progress,
             color = Color.Black,
             strokeCap = StrokeCap.Round,
             modifier = Modifier.fillMaxWidth()

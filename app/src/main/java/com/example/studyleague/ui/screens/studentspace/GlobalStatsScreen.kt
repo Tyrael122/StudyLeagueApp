@@ -3,6 +3,7 @@ package com.example.studyleague.ui.screens.studentspace
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studyleague.LocalStudentViewModel
+import com.example.studyleague.ui.FetchState
 import com.example.studyleague.ui.components.Accordion
 import com.example.studyleague.ui.components.Accordion.TextRow
 import com.example.studyleague.ui.components.StatisticsSquare
@@ -22,7 +24,25 @@ fun GlobalStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
 
-    val studentStats = uiState.studentStats.studentStatisticsDTO
+    LaunchedEffect(Unit) {
+        studentViewModel.fetchStudentStats()
+    }
+
+    when (uiState.studentStats) {
+        is FetchState.Loaded -> {
+            GlobalStatsScreenContent()
+        }
+
+        else -> {}
+    }
+}
+
+@Composable
+fun GlobalStatsScreenContent() {
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+
+    val studentStats = uiState.studentStats.getLoadedValue().studentStatisticsDTO
 
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)

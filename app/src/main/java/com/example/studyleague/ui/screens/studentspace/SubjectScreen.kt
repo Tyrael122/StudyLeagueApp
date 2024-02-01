@@ -19,10 +19,12 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -45,6 +47,8 @@ import com.example.studyleague.ui.components.ProgressIndicator
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.TopBarTitleStyles
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 
@@ -107,11 +111,17 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
         mutableListOf("Revisões", weeklyGoal.reviews.toString()),
     )
 
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(floatingActionButton = {
         DefaultIconButtom(onClick = {
-            studentViewModel.updateSelectedSubjectName(subjectName)
-            studentViewModel.updateSelectedSubjectAlltimeGoals(allTimeGoals.map { it[1].toFloat() })
-            studentViewModel.updateSelectedSubjectWeeklyGoals(allTimeGoals.map { it[1].toFloat() })
+            coroutineScope.launch {
+                studentViewModel.updateSelectedSubjectName(subjectName)
+                studentViewModel.updateSelectedSubjectAlltimeGoals(allTimeGoals.map { it[1].toFloat() })
+                studentViewModel.updateSelectedSubjectWeeklyGoals(allTimeGoals.map { it[1].toFloat() })
+
+                studentViewModel.fetchAllSubjects()
+            }
         }) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }

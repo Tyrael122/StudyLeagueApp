@@ -15,7 +15,7 @@ class StudentRepository(
 ) {
     suspend fun createStudent(student: StudentDTO): StudentDTO = remoteDataSource.postStudent(student)
     suspend fun fetchStudent(studentId: Long): StudentDTO = remoteDataSource.fetchStudent(studentId)
-    suspend fun fetchStudentStats(studentId: Long): StudentStatisticsDTO = remoteDataSource.fetchStudentStats(studentId)
+    suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO = remoteDataSource.fetchStudentStats(studentId, date)
     suspend fun addSubjects(studentId: Long, subjects: List<SubjectDTO>) = remoteDataSource.postSubjects(studentId, subjects)
     suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = remoteDataSource.fetchAllSubjects(studentId, date)
     suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = remoteDataSource.fetchScheduledSubjects(studentId, date)

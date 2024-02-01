@@ -1,5 +1,6 @@
 package com.example.studyleague
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -53,6 +54,7 @@ fun StudyLeagueApp() {
             }
 
             composable(StudentScreen.SCHEDULE.name) {
+                Log.d("StudyLeagueApp", "SCHEDULE")
                 ScheduleScreen(onDone = { navController.navigate(Screen.GOALS_EXPLANATION.name) })
             }
 

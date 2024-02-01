@@ -14,9 +14,13 @@ import com.example.studyleague.model.Student
 import com.example.studyleague.model.StudentStats
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.ScheduleEntryData
+import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
+import dtos.student.goals.WriteGoalDTO
 import dtos.student.schedule.ScheduleDTO
 import dtos.student.schedule.StudyDayDTO
+import enums.DateRangeType
+import enums.StatisticType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -47,32 +51,41 @@ class StudentViewModel(
     }
 
     fun addSubjects(subjects: List<Subject>) {
+        if (subjects.isEmpty()) {
+            return
+        }
+
         val subjectsDto = subjects.map { it.subjectDTO }
         val studentId = uiState.value.student.studentDTO.id
 
         viewModelScope.launch {
             studentRepository.addSubjects(studentId, subjectsDto)
-
-            fetchAllSubjects()
         }
     }
 
-    private fun fetchAllSubjects() {
+    suspend fun fetchAllSubjects() {
         val studentId = uiState.value.student.studentDTO.id
         val currentDate = uiState.value.currentDate
 
-        viewModelScope.launch {
-            val subjectsDto = studentRepository.fetchAllSubjects(studentId, currentDate)
-            val subjects = subjectsDto.map { Subject(subjectDTO = it) }
+        val selectedSubjectId = uiState.value.selectedSubject.subjectDTO.id
 
-            _uiState.update {
-                it.copy(subjects = subjects)
-            }
+//        viewModelScope.launch {
+        val subjectsDto = studentRepository.fetchAllSubjects(studentId, currentDate)
+        val subjects = subjectsDto.map { Subject(subjectDTO = it) }
+
+        val newSelectedSubject =
+            subjects.find { it.subjectDTO.id == selectedSubjectId } ?: Subject()
+
+        _uiState.update {
+            it.copy(subjects = FetchState.Loaded(subjects), selectedSubject = newSelectedSubject)
         }
+//        }
     }
 
     fun updateScheduleEntries(scheduleEntries: List<ScheduleEntryData>) {
-        val currentScheduleEntries = fetchScheduleEntries()
+        fetchSchedule()
+        val currentScheduleEntries = getScheduleEntries()
+
         if (currentScheduleEntries.containsAll(scheduleEntries) && currentScheduleEntries.size == scheduleEntries.size) {
             return
         }
@@ -81,7 +94,7 @@ class StudentViewModel(
 
         val studyDays = scheduleEntries.groupBy { it.dayOfWeek }
         val studyDaysDto = studyDays.map { (day, entries) ->
-            StudyDayDTO(day, entries.map { it.toScheduleEntryDTO(subjects) })
+            StudyDayDTO(day, entries.map { it.toScheduleEntryDTO(subjects.getLoadedValue()) })
         }
 
         val scheduleDto = ScheduleDTO(studyDaysDto)
@@ -91,17 +104,25 @@ class StudentViewModel(
         }
     }
 
-    fun fetchScheduleEntries(): List<ScheduleEntryData> {
+    fun fetchSchedule() {
         runBlocking {
+            _uiState.update {
+                it.copy(schedule = FetchState.Loading)
+            }
+
             val scheduleDTO = studentRepository.fetchSchedule(uiState.value.student.studentDTO.id)
             _uiState.update {
-                it.copy(schedule = Schedule(scheduleDTO = scheduleDTO))
+                it.copy(schedule = FetchState.Loaded(Schedule(scheduleDTO = scheduleDTO)))
             }
-        }
 
+            fetchAllSubjects()
+        }
+    }
+
+    fun getScheduleEntries(): List<ScheduleEntryData> {
         val listOfScheduleEntries = mutableListOf<ScheduleEntryData>()
 
-        for (day in uiState.value.schedule.scheduleDTO.days) {
+        for (day in uiState.value.schedule.getLoadedValue().scheduleDTO.days) {
             for (scheduleEntry in day.schedule) {
                 listOfScheduleEntries.add(
                     ScheduleEntryData(
@@ -117,22 +138,46 @@ class StudentViewModel(
         return listOfScheduleEntries
     }
 
-    fun fetchStudentStats() {
-        // TODO: Make a request to the API.
+    suspend fun fetchStudentStats() {
+        val studentStatsDTO = studentRepository.fetchStudentStats(
+            uiState.value.student.studentDTO.id, uiState.value.currentDate
+        )
+        _uiState.update {
+            it.copy(studentStats = FetchState.Loaded(StudentStats(studentStatisticsDTO = studentStatsDTO)))
+        }
     }
 
-    fun fetchScheduledSubjectsForDay(): List<Subject> {
-        // TODO: Make a request to the API.
-        return emptyList()
+    suspend fun fetchScheduledSubjectsForDay() {
+        val studentId = uiState.value.student.studentDTO.id
+
+        val scheduledSubjects =
+            studentRepository.fetchScheduledSubjects(studentId, uiState.value.currentDate)
+        val subjects = scheduledSubjects.map { Subject(subjectDTO = it) }
+
+        _uiState.update {
+            it.copy(subjects = FetchState.Loaded(subjects))
+        }
     }
 
-    fun updateSubjectDailyStats(updatedStats: List<Float>) {
+    suspend fun updateSelectedSubjectDailyStats(updatedStats: List<Float>) {
         // TODO: Check if it's equal before making the request.
 
-        // TODO: Make a request to the API.
+        val studentId = uiState.value.student.studentDTO.id
+        val subjectId = uiState.value.selectedSubject.subjectDTO.id
+
+        val stats = updatedStats.mapIndexed { index, value ->
+            WriteStatisticDTO(
+                convertToStatisticType(index), value
+            )
+        }
+
+        studentRepository.postSubjectStats(studentId, subjectId, stats)
+
+        fetchStudentStats()
+        fetchScheduledSubjectsForDay()
     }
 
-    fun updateSelectedSubjectName(subjectName: String?) {
+    fun updateSelectedSubjectName(subjectName: String) {
         val currentName = uiState.value.selectedSubject.subjectDTO.name
         if (currentName == subjectName) {
             return
@@ -141,16 +186,31 @@ class StudentViewModel(
         // TODO: Make API request.
     }
 
-    fun updateSelectedSubjectAlltimeGoals(goals: List<Float>) {
+    suspend fun updateSelectedSubjectAlltimeGoals(goals: List<Float>) {
         // TODO: Check if it's equal before making the request.
 
-        // TODO: Make API request
+        updateSubjectGoals(goals, DateRangeType.ALL_TIME)
     }
 
-    fun updateSelectedSubjectWeeklyGoals(goals: List<Float>) {
+    suspend fun updateSelectedSubjectWeeklyGoals(goals: List<Float>) {
         // TODO: Check if it's equal before making the request.
 
-        // TODO: Make API request
+        updateSubjectGoals(goals, DateRangeType.WEEKLY)
+    }
+
+    private suspend fun updateSubjectGoals(goals: List<Float>, dateRangeType: DateRangeType) {
+        val studentId = uiState.value.student.studentDTO.id
+        val subjectId = uiState.value.selectedSubject.subjectDTO.id
+
+        val allTimeGoals = goals.mapIndexed { index, value ->
+            WriteGoalDTO(
+                convertToStatisticType(index), value
+            )
+        }
+
+        studentRepository.postSubjectGoals(
+            studentId, subjectId, dateRangeType, allTimeGoals
+        )
     }
 
     fun selectSubject(subject: Subject) {
@@ -160,7 +220,7 @@ class StudentViewModel(
     }
 
     private fun findSubjectById(subjectId: Long): Subject {
-        return uiState.value.subjects.find { it.subjectDTO.id == subjectId }
+        return uiState.value.subjects.getLoadedValue().find { it.subjectDTO.id == subjectId }
             ?: throw IllegalArgumentException("Subject not found.")
     }
 
@@ -185,6 +245,15 @@ class StudentViewModel(
         }
     }
 
+    private fun convertToStatisticType(index: Int): StatisticType {
+        return when (index) {
+            0 -> StatisticType.HOURS
+            1 -> StatisticType.QUESTIONS
+            2 -> StatisticType.REVIEWS
+            else -> throw IllegalArgumentException("Invalid index.")
+        }
+    }
+
     companion object {
         fun factory(dataStoreManager: DataStoreManager): ViewModelProvider.Factory {
             return viewModelFactory {
@@ -197,10 +266,26 @@ class StudentViewModel(
 }
 
 data class StudentUiState(
-    val subjects: List<Subject> = listOf(),
-    val schedule: Schedule = Schedule(),
+    val subjects: FetchState<List<Subject>> = FetchState.Empty,
+    val schedule: FetchState<Schedule> = FetchState.Empty,
     val selectedSubject: Subject = Subject(),
     val student: Student = Student(),
-    val studentStats: StudentStats = StudentStats(),
+    val studentStats: FetchState<StudentStats> = FetchState.Empty,
     val currentDate: LocalDate = LocalDate.now()
 )
+
+// Out makes this accept subtypes of T,
+// so if I say I want a FetchState<String>, I can pass a FetchResult.Empty to it.
+sealed class FetchState<out T> {
+    data object Empty : FetchState<Nothing>()
+    data object Loading : FetchState<Nothing>()
+    data class Loaded<T>(val value: T) : FetchState<T>()
+    data object Error : FetchState<Nothing>()
+
+    fun getLoadedValue(): T {
+        return when (this) {
+            is Loaded -> this.value
+            else -> throw IllegalStateException("No items loaded. Current state: $this")
+        }
+    }
+}

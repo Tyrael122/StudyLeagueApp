@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
+import com.example.studyleague.ui.FetchState
 import com.example.studyleague.ui.components.DefaultDialog
 import com.example.studyleague.ui.components.DefaultIconButtom
 import com.example.studyleague.ui.components.NumberButton
@@ -49,27 +52,54 @@ import com.example.studyleague.ui.components.Schedule
 import com.example.studyleague.ui.components.ScheduleEntryData
 import com.example.studyleague.ui.components.StudentDropdownMenu
 import com.example.studyleague.ui.components.TimePickerDialog
+import kotlinx.coroutines.runBlocking
 import java.time.LocalTime
 
 
 @Composable
 fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
-    setFullscreenMode(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-
     val studentViewModel = LocalStudentViewModel.current
     val studentUiState by studentViewModel.uiState.collectAsState()
 
-    val scheduleEntries = remember { studentViewModel.fetchScheduleEntries().toMutableList() }
+    LaunchedEffect(Unit) {
+        studentViewModel.fetchSchedule()
+        Log.d("ScheduleScreen", "Fetching schedule at launched effect")
+    }
+
+    when (studentUiState.schedule) {
+        is FetchState.Loaded -> ScheduleScreenContent(
+            modifier = modifier,
+            onDone = {
+                studentViewModel.updateScheduleEntries(it)
+
+                onDone()
+            },
+            subjects = studentUiState.subjects.getLoadedValue(),
+            initialScheduleEntries = studentViewModel.getScheduleEntries()
+        )
+
+        else -> {
+            Log.d("ScheduleScreen", "Entering in else branch")
+        }
+    }
+}
+
+@Composable
+fun ScheduleScreenContent(
+    modifier: Modifier,
+    onDone: (List<ScheduleEntryData>) -> Unit,
+    subjects: List<Subject>,
+    initialScheduleEntries: List<ScheduleEntryData>
+) {
+    setFullscreenMode(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+
+    val scheduleEntries = remember { initialScheduleEntries.toMutableList() }
 
     Scaffold(modifier = modifier, floatingActionButton = {
         DefaultIconButtom(
             onClick = {
-                studentViewModel.updateScheduleEntries(scheduleEntries)
-
-                onDone()
-
-            }, modifier = Modifier
-                .padding(bottom = 30.dp, end = 30.dp)
+                onDone(scheduleEntries)
+            }, modifier = Modifier.padding(bottom = 30.dp, end = 30.dp)
         ) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }
@@ -122,7 +152,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
 
         if (isDialogVisible) {
             ScheduleEntryInfoDialog(initialScheduleEntry = loadedScheduleEntryData,
-                availableSubjects = studentUiState.subjects,
+                availableSubjects = subjects,
                 onDone = scheduleDialogOnDone,
                 onDismissRequest = {
                     isDialogVisible = false
@@ -200,7 +230,8 @@ fun ScheduleEntryInfoDialog(
                 )
             }
 
-            TextButton(shape = RoundedCornerShape(0),
+            TextButton(
+                shape = RoundedCornerShape(0),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
 
@@ -242,6 +273,8 @@ private fun setFullscreenMode(screenOrientation: Int) {
 
         activity.requestedOrientation = screenOrientation
 
+        Log.d("ScheduleScreen", "Setting fullscreen mode")
+
         val window = activity.window
         WindowCompat.getInsetsController(window, window.decorView).let {
             it.hide(WindowInsetsCompat.Type.systemBars())
@@ -254,6 +287,8 @@ private fun setFullscreenMode(screenOrientation: Int) {
             activity.requestedOrientation = originalOrientation
             WindowCompat.getInsetsController(window, window.decorView)
                 .show(WindowInsetsCompat.Type.systemBars())
+
+            Log.d("ScheduleScreen", "Disposing fullscreen mode")
         }
     }
 }

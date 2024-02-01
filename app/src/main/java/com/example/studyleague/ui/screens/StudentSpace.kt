@@ -1,5 +1,6 @@
 package com.example.studyleague.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -110,6 +111,7 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         }
 
         composable(StudentScreen.SCHEDULE.name) {
+            Log.d("StudentSpace", "SCHEDULE")
             ScheduleScreen(onDone = { navController.navigate(StudentScreen.GLOBAL_STATS.name) })
         }
     }

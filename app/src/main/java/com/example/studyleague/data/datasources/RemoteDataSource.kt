@@ -49,9 +49,9 @@ class RemoteDataSource(
         }
     }
 
-    suspend fun fetchStudentStats(studentId: Long): StudentStatisticsDTO {
+    suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO {
         return withContext(ioDispatcher) {
-            retrofitService.fetchStudentStats(studentId)
+            retrofitService.fetchStudentStats(studentId, date)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.studyleague.ui.screens.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +33,11 @@ import dtos.SubjectDTO
 @Composable
 fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
     val subjects = remember {
-        mutableStateListOf("Direito constitucional")
+        mutableStateListOf<String>()
+    }
+
+    LaunchedEffect(Unit) {
+        Log.d("AddSubjectsScreen", "has passed here, inside launched effect")
     }
 
     Column(

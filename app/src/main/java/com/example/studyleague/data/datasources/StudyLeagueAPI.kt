@@ -23,7 +23,7 @@ interface StudyLeagueAPI {
     suspend fun fetchStudent(@Path("studentId") studentId: Long) : StudentDTO
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STATS)
-    suspend fun fetchStudentStats(@Path("studentId") studentId: Long) : StudentStatisticsDTO
+    suspend fun fetchStudentStats(@Path("studentId") studentId: Long, @Query("date") date: LocalDate) : StudentStatisticsDTO
 
     @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT)
     suspend fun postSubjects(@Path("studentId") studentId: Long, @Body subjects: List<SubjectDTO>)

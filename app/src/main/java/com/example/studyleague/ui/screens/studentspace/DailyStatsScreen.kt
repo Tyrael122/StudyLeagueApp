@@ -18,10 +18,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
+import com.example.studyleague.ui.FetchState
+import com.example.studyleague.ui.StudentViewModel
 import com.example.studyleague.ui.components.StatisticsSquare
 import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.datagrid.DataGrid
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
@@ -54,8 +58,26 @@ fun DailyStatsScreen() {
         )
     )
 
+    LaunchedEffect(Unit) {
+        studentViewModel.fetchScheduledSubjectsForDay()
+        studentViewModel.fetchStudentStats()
+    }
 
-    val studentStats = uiState.studentStats.studentStatisticsDTO
+    when (uiState.studentStats) {
+        is FetchState.Loaded -> {
+            DailyScreenContent(studentViewModel)
+        }
+
+        else -> {}
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DailyScreenContent(studentViewModel: StudentViewModel) {
+    val uiState by studentViewModel.uiState.collectAsState()
+
+    val studentStats = uiState.studentStats.getLoadedValue().studentStatisticsDTO
 
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -78,7 +100,7 @@ fun DailyStatsScreen() {
 
             StatisticsSquare(
                 title = "Metas batidas",
-                data = "${studentStats.hoursGoalsCompleted}/${uiState.subjects.size}",
+                data = "${studentStats.hoursGoalsCompleted}/${uiState.subjects.getLoadedValue().size}",
                 dataTextStyle = dataTextStyle,
                 titleTextStyle = titleTextStyle
             )
@@ -97,7 +119,7 @@ fun DailyStatsScreen() {
 
         DataGrid(isSearchBarVisible = false,
             columns = Subject.columns,
-            items = studentViewModel.fetchScheduledSubjectsForDay(),
+            items = uiState.subjects.getLoadedValue(),
             onItemClick = {
                 studentViewModel.selectSubject(it)
 
@@ -113,11 +135,15 @@ fun DailyStatsScreen() {
                 mutableListOf("Revisões", selectedSubjectDailyStats.reviews.toString()),
             )
 
+            val coroutineScope = rememberCoroutineScope()
+
             ModalBottomSheet(
                 containerColor = Color.White, onDismissRequest = {
-                    studentViewModel.updateSubjectDailyStats(data.map { it[1].toFloat() })
+                    coroutineScope.launch {
+                        studentViewModel.updateSelectedSubjectDailyStats(data.map { it[1].toFloat() })
 
-                    isBottomSheetVisible = false
+                        isBottomSheetVisible = false
+                    }
                 }, sheetState = sheetState
             ) {
                 Column(
