@@ -1,5 +1,6 @@
 package com.example.studyleague.ui.screens.studentspace
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,8 +39,9 @@ import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.FetchState
 import com.example.studyleague.ui.StudentViewModel
+import com.example.studyleague.ui.Util.calculateColorForGrade
+import com.example.studyleague.ui.Util.formatFloat
 import com.example.studyleague.ui.components.StatisticsSquare
-import com.example.studyleague.ui.components.TopBarTitle
 import com.example.studyleague.ui.components.datagrid.DataGrid
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 import kotlinx.coroutines.launch
@@ -51,16 +52,11 @@ fun DailyStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
 
-    val currentDayOfWeek = uiState.currentDate.dayOfWeek
-    TopBarTitle.setTitle(
-        currentDayOfWeek.getDisplayName(
-            java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
-        )
-    )
-
     LaunchedEffect(Unit) {
         studentViewModel.fetchScheduledSubjectsForDay()
         studentViewModel.fetchStudentStats()
+
+        Log.d("DailyStatsScreen", "Fetching student stats at daily screen")
     }
 
     when (uiState.studentStats) {
@@ -93,8 +89,8 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
 
             StatisticsSquare(
                 title = "Nota diária",
-                data = studentStats.dailyGrade.toString(),
-                dataTextStyle = dataTextStyle.copy(color = Color(0xFFBA0000)),
+                data = formatFloat(studentStats.dailyGrade),
+                dataTextStyle = dataTextStyle.copy(color = calculateColorForGrade(studentStats.dailyGrade)),
                 titleTextStyle = titleTextStyle
             )
 

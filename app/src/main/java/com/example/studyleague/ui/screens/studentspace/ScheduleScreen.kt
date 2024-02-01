@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,7 @@ import com.example.studyleague.ui.components.Schedule
 import com.example.studyleague.ui.components.ScheduleEntryData
 import com.example.studyleague.ui.components.StudentDropdownMenu
 import com.example.studyleague.ui.components.TimePickerDialog
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 
@@ -63,24 +64,27 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
 
     LaunchedEffect(Unit) {
         studentViewModel.fetchSchedule()
+
         Log.d("ScheduleScreen", "Fetching schedule at launched effect")
     }
+
+    val coroutineScope = rememberCoroutineScope()
 
     when (studentUiState.schedule) {
         is FetchState.Loaded -> ScheduleScreenContent(
             modifier = modifier,
             onDone = {
-                studentViewModel.updateScheduleEntries(it)
+                coroutineScope.launch {
+                    studentViewModel.updateScheduleEntries(it)
 
-                onDone()
+                    onDone()
+                }
             },
             subjects = studentUiState.subjects.getLoadedValue(),
             initialScheduleEntries = studentViewModel.getScheduleEntries()
         )
 
-        else -> {
-            Log.d("ScheduleScreen", "Entering in else branch")
-        }
+        else -> {}
     }
 }
 

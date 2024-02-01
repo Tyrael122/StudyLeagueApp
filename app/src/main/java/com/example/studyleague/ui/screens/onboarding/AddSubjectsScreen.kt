@@ -1,6 +1,5 @@
 package com.example.studyleague.ui.screens.onboarding
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +10,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,15 +28,12 @@ import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.OnboardingButton
 import dtos.SubjectDTO
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
     val subjects = remember {
         mutableStateListOf<String>()
-    }
-
-    LaunchedEffect(Unit) {
-        Log.d("AddSubjectsScreen", "has passed here, inside launched effect")
     }
 
     Column(
@@ -94,15 +90,18 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
         }
 
         val studentViewModel = LocalStudentViewModel.current
+        val coroutineScope = rememberCoroutineScope()
         OnboardingButton(onClick = {
-            studentViewModel.addSubjects(subjects = subjects.map {
-                val subjectDto = SubjectDTO()
-                subjectDto.name = it
+            coroutineScope.launch {
+                studentViewModel.addSubjects(subjects = subjects.map {
+                    val subjectDto = SubjectDTO()
+                    subjectDto.name = it
 
-                Subject(subjectDTO = subjectDto)
-            })
+                    Subject(subjectDTO = subjectDto)
+                })
 
-            navigateToNextScreen()
+                navigateToNextScreen()
+            }
         }, text = "CONTINUAR")
     }
 }

@@ -23,7 +23,8 @@ enum class Screen {
     ONBOARDING, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
 }
 
-val LocalStudentViewModel = compositionLocalOf<StudentViewModel> { error("No StudentViewModel found!") }
+val LocalStudentViewModel =
+    compositionLocalOf<StudentViewModel> { error("No StudentViewModel found!") }
 
 @Composable
 fun StudyLeagueApp() {
@@ -31,15 +32,15 @@ fun StudyLeagueApp() {
     val context = LocalContext.current
 
 //    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
-    val hasCompletedOnboarding = false
+    val hasCompletedOnboarding = true
 
-    val studentViewModel: StudentViewModel = viewModel(factory = StudentViewModel.factory(DataStoreManager(context)))
+    val studentViewModel: StudentViewModel =
+        viewModel(factory = StudentViewModel.factory(DataStoreManager(context)))
 
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
             navController = navController,
-//        startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
-            startDestination = Screen.ONBOARDING.name
+            startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
         ) {
             composable(Screen.ONBOARDING.name) {
                 OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
@@ -50,11 +51,14 @@ fun StudyLeagueApp() {
             }
 
             composable(Screen.SCHEDULE_EXPLANATION.name) {
-                ScheduleExplanationScreen(navigateToNextScreen = { navController.navigate(StudentScreen.SCHEDULE.name) })
+                ScheduleExplanationScreen(navigateToNextScreen = {
+                    navController.navigate(
+                        StudentScreen.SCHEDULE.name
+                    )
+                })
             }
 
             composable(StudentScreen.SCHEDULE.name) {
-                Log.d("StudyLeagueApp", "SCHEDULE")
                 ScheduleScreen(onDone = { navController.navigate(Screen.GOALS_EXPLANATION.name) })
             }
 

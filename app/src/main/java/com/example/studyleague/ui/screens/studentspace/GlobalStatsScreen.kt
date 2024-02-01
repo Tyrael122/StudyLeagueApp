@@ -1,5 +1,6 @@
 package com.example.studyleague.ui.screens.studentspace
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -13,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.ui.FetchState
+import com.example.studyleague.ui.Util.calculateColorForGrade
+import com.example.studyleague.ui.Util.formatFloat
 import com.example.studyleague.ui.components.Accordion
 import com.example.studyleague.ui.components.Accordion.TextRow
 import com.example.studyleague.ui.components.StatisticsSquare
@@ -26,6 +29,7 @@ fun GlobalStatsScreen() {
 
     LaunchedEffect(Unit) {
         studentViewModel.fetchStudentStats()
+        Log.d("GlobalStatsScreen", "Fetching student stats at global screen")
     }
 
     when (uiState.studentStats) {
@@ -53,20 +57,20 @@ fun GlobalStatsScreenContent() {
             )
 
             val dataTextStyle = TextStyle(
-                fontWeight = FontWeight.ExtraBold, color = Color(0xFFBA0000), fontSize = 25.sp
+                fontWeight = FontWeight.ExtraBold, fontSize = 25.sp
             )
 
             StatisticsSquare(
                 title = "Nota semanal",
-                data = studentStats.weeklyGrade.toString(),
-                dataTextStyle = dataTextStyle,
+                data = formatFloat(studentStats.weeklyGrade),
+                dataTextStyle = dataTextStyle.copy(color = calculateColorForGrade(studentStats.weeklyGrade)),
                 titleTextStyle = titleTextStyle
             )
 
             StatisticsSquare(
                 title = "Nota mensal",
-                data = studentStats.monthlyGrade.toString(),
-                dataTextStyle = dataTextStyle.copy(color = Color(0xFF00B607)),
+                data = formatFloat(studentStats.monthlyGrade),
+                dataTextStyle = dataTextStyle.copy(color = calculateColorForGrade(studentStats.monthlyGrade)),
                 titleTextStyle = titleTextStyle
             )
         }

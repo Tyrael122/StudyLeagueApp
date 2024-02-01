@@ -96,13 +96,14 @@ fun UserInfo(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Salomão Memória", style = TextStyle(
+            text = "Salomão Memória", // TODO: Set this to the student's name
+            style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ), modifier = Modifier.padding(top = 10.dp)
         )
 
         Text(
-            text = "Direito",
+            text = "Direito", // TODO: Set this to the student's goal
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Normal,
         )

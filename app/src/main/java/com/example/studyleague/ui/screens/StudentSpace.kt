@@ -1,6 +1,5 @@
 package com.example.studyleague.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +12,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,16 +21,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.ui.components.DrawerContent
 import com.example.studyleague.ui.components.NavigationItem
 import com.example.studyleague.ui.components.NavigationItemBuilder
 import com.example.studyleague.ui.components.StudentTopBar
-import com.example.studyleague.ui.components.TopBarTitle
+import com.example.studyleague.ui.components.TopBarTitleHelper
+import com.example.studyleague.ui.components.TopBarTitleStyles
 import com.example.studyleague.ui.screens.studentspace.DailyStatsScreen
 import com.example.studyleague.ui.screens.studentspace.GlobalStatsScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
@@ -66,7 +69,7 @@ fun StudentSpace(
     ) { openNavDrawer ->
         Scaffold(bottomBar = bottomBar, topBar = {
             if (!isCompactMode) {
-                StudentTopBar(title = TopBarTitle.buildTextComposable(), onNavigationIconClick = {
+                StudentTopBar(title = topBarTitle(currentRoute), onNavigationIconClick = {
                     openNavDrawer()
                 })
             }
@@ -76,13 +79,39 @@ fun StudentSpace(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                TopBarTitle.setTitle("Direito") // Default title
-
                 StudentNavGraph(
                     navController = navController,
                     startDestination = if (hasCompletedOnboarding) StudentScreen.GLOBAL_STATS.name else StudentScreen.SUBJECTS_TABLE.name
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun topBarTitle(currentRoute: String): @Composable () -> Unit {
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+
+    return when (currentRoute) {
+        StudentScreen.SUBJECT.name -> {
+            val selectedSubject = uiState.selectedSubject
+            TopBarTitleHelper.buildTextComposable(
+                selectedSubject.subjectDTO.name, TopBarTitleStyles.medium()
+            )
+        }
+
+        StudentScreen.DAILY_STATS.name -> {
+            val currentDayOfWeek = uiState.currentDate.dayOfWeek
+            val newTitle = currentDayOfWeek.getDisplayName(
+                java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
+            )
+
+            TopBarTitleHelper.buildTextComposable(newTitle)
+        }
+
+        else -> {
+            TopBarTitleHelper.buildTextComposable("Direito")
         }
     }
 }
@@ -111,7 +140,6 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         }
 
         composable(StudentScreen.SCHEDULE.name) {
-            Log.d("StudentSpace", "SCHEDULE")
             ScheduleScreen(onDone = { navController.navigate(StudentScreen.GLOBAL_STATS.name) })
         }
     }

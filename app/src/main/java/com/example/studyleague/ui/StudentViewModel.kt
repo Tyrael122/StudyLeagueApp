@@ -38,19 +38,19 @@ class StudentViewModel(
     private val studentRepository = StudentRepository(RemoteDataSource())
 
     init {
-        viewModelScope.launch {
+        runBlocking {
 //            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
 //            if (studentId == null) {
 //                createStudent()
 //            } else {
 //                fetchStudent(studentId)
 //            }
-        }
 
-        fetchStudent(1)
+            fetchStudent(1)
+        }
     }
 
-    fun addSubjects(subjects: List<Subject>) {
+    suspend fun addSubjects(subjects: List<Subject>) {
         if (subjects.isEmpty()) {
             return
         }
@@ -58,9 +58,7 @@ class StudentViewModel(
         val subjectsDto = subjects.map { it.subjectDTO }
         val studentId = uiState.value.student.studentDTO.id
 
-        viewModelScope.launch {
-            studentRepository.addSubjects(studentId, subjectsDto)
-        }
+        studentRepository.addSubjects(studentId, subjectsDto)
     }
 
     suspend fun fetchAllSubjects() {
@@ -69,7 +67,6 @@ class StudentViewModel(
 
         val selectedSubjectId = uiState.value.selectedSubject.subjectDTO.id
 
-//        viewModelScope.launch {
         val subjectsDto = studentRepository.fetchAllSubjects(studentId, currentDate)
         val subjects = subjectsDto.map { Subject(subjectDTO = it) }
 
@@ -79,10 +76,9 @@ class StudentViewModel(
         _uiState.update {
             it.copy(subjects = FetchState.Loaded(subjects), selectedSubject = newSelectedSubject)
         }
-//        }
     }
 
-    fun updateScheduleEntries(scheduleEntries: List<ScheduleEntryData>) {
+    suspend fun updateScheduleEntries(scheduleEntries: List<ScheduleEntryData>) {
         fetchSchedule()
         val currentScheduleEntries = getScheduleEntries()
 
@@ -99,23 +95,19 @@ class StudentViewModel(
 
         val scheduleDto = ScheduleDTO(studyDaysDto)
 
-        viewModelScope.launch {
-            studentRepository.updateSchedule(uiState.value.student.studentDTO.id, scheduleDto)
-        }
+        studentRepository.updateSchedule(uiState.value.student.studentDTO.id, scheduleDto)
     }
 
-    fun fetchSchedule() {
-        runBlocking {
-            _uiState.update {
-                it.copy(schedule = FetchState.Loading)
-            }
+    suspend fun fetchSchedule() {
+        fetchAllSubjects()
 
-            val scheduleDTO = studentRepository.fetchSchedule(uiState.value.student.studentDTO.id)
-            _uiState.update {
-                it.copy(schedule = FetchState.Loaded(Schedule(scheduleDTO = scheduleDTO)))
-            }
+        _uiState.update {
+            it.copy(schedule = FetchState.Loading)
+        }
 
-            fetchAllSubjects()
+        val scheduleDTO = studentRepository.fetchSchedule(uiState.value.student.studentDTO.id)
+        _uiState.update {
+            it.copy(schedule = FetchState.Loaded(Schedule(scheduleDTO = scheduleDTO)))
         }
     }
 
@@ -202,10 +194,12 @@ class StudentViewModel(
         val studentId = uiState.value.student.studentDTO.id
         val subjectId = uiState.value.selectedSubject.subjectDTO.id
 
-        val allTimeGoals = goals.mapIndexed { index, value ->
-            WriteGoalDTO(
-                convertToStatisticType(index), value
-            )
+        val allTimeGoals = mutableListOf<WriteGoalDTO>()
+        for (index in goals.indices) {
+            val statisticType = convertToStatisticType(index)
+            if (statisticType == StatisticType.HOURS) continue
+
+            allTimeGoals.add(WriteGoalDTO(statisticType, goals[index]))
         }
 
         studentRepository.postSubjectGoals(
@@ -224,24 +218,20 @@ class StudentViewModel(
             ?: throw IllegalArgumentException("Subject not found.")
     }
 
-    private fun createStudent() {
-        viewModelScope.launch {
-            val studentDTO = studentRepository.createStudent(StudentDTO())
+    private suspend fun createStudent() {
+        val studentDTO = studentRepository.createStudent(StudentDTO())
 
-            _uiState.update {
-                it.copy(student = Student(studentDTO = studentDTO))
-            }
-
-            dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
         }
+
+        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
     }
 
-    private fun fetchStudent(studentId: Long) {
-        viewModelScope.launch {
-            val studentDTO = studentRepository.fetchStudent(studentId)
-            _uiState.update {
-                it.copy(student = Student(studentDTO = studentDTO))
-            }
+    private suspend fun fetchStudent(studentId: Long) {
+        val studentDTO = studentRepository.fetchStudent(studentId)
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
         }
     }
 

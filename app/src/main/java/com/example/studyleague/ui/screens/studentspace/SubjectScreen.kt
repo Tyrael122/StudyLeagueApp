@@ -19,9 +19,9 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,11 +44,8 @@ import com.example.studyleague.ui.components.Accordion
 import com.example.studyleague.ui.components.DefaultIconButtom
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.ProgressIndicator
-import com.example.studyleague.ui.components.TopBarTitle
-import com.example.studyleague.ui.components.TopBarTitleStyles
 import com.example.studyleague.ui.screens.StudentSpaceDefaultColumn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 
@@ -62,7 +59,6 @@ fun SubjectScreen() {
     val uiState by studentViewModel.uiState.collectAsState()
     val selectedSubject = uiState.selectedSubject
 
-    TopBarTitle.setTitle(selectedSubject.subjectDTO.name, TopBarTitleStyles.medium())
 
     val navController = rememberNavController()
 
@@ -99,17 +95,22 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
     var subjectName by remember { mutableStateOf(selectedSubject.subjectDTO.name) }
 
     val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
-    val allTimeGoals = listOf(
-        mutableListOf("Horas", allTimeGoal.hours.toString()),
-        mutableListOf("Questões", allTimeGoal.questions.toString()),
-        mutableListOf("Revisões", allTimeGoal.reviews.toString()),
-    )
+    val allTimeGoals = remember {
+        mutableStateListOf(
+            listOf("Horas", allTimeGoal.hours.toString()),
+            listOf("Questões", allTimeGoal.questions.toString()),
+            listOf("Revisões", allTimeGoal.reviews.toString()),
+        )
+    }
 
     val weeklyGoal = selectedSubject.subjectDTO.weeklyGoals
-    val weeklyGoals = listOf(
-        mutableListOf("Questões", weeklyGoal.hours.toString()),
-        mutableListOf("Revisões", weeklyGoal.reviews.toString()),
-    )
+    val weeklyGoals = remember {
+        mutableStateListOf(
+            listOf("Horas", weeklyGoal.hours.toString()),
+            listOf("Questões", weeklyGoal.questions.toString()),
+            listOf("Revisões", weeklyGoal.reviews.toString()),
+        )
+    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -122,7 +123,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
 
                 studentViewModel.fetchAllSubjects()
             }
-        }) {
+        }, modifier = Modifier.padding(bottom = 15.dp, end = 15.dp)) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }
     }) { paddingValues ->
@@ -139,15 +140,14 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
 
             Accordion(title = "Metas - Totais", body = {
                 Accordion.TextFieldRow(items = allTimeGoals, onValueChange = { index, string ->
-                    allTimeGoals[index][1] = string
+                    allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
                 })
             })
 
             Accordion(title = "Metas - Semanais", body = {
-                Accordion.TextRow(items = listOf(listOf("Horas", weeklyGoal.hours.toString())))
-
                 Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
-                    weeklyGoals[index][1] = string
+                    if (index == 0) return@TextFieldRow
+                    allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
                 })
             })
         }

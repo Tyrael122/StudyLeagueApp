@@ -1,5 +1,6 @@
 package com.example.studyleague.ui.screens.studentspace
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +19,8 @@ fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit) {
 
     LaunchedEffect(Unit) {
         studentViewModel.fetchAllSubjects()
+
+        Log.d("SubjectTableScreen", "Fetching all subjects")
     }
 
     when (uiState.subjects) {
