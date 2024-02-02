@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,16 +51,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun DailyStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
-    val uiState by studentViewModel.uiState.collectAsState()
+
+    var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
         studentViewModel.fetchScheduledSubjectsForDay()
         studentViewModel.fetchStudentStats()
 
+        fetchState = FetchState.Loaded(Unit)
+
         Log.d("DailyStatsScreen", "Fetching student stats at daily screen")
     }
 
-    when (uiState.studentStats) {
+    when (fetchState) {
         is FetchState.Loaded -> {
             DailyScreenContent(studentViewModel)
         }
@@ -116,6 +120,7 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
         DataGrid(isSearchBarVisible = false,
             columns = Subject.columns,
             items = uiState.subjects.getLoadedValue(),
+            noContentText = "Nenhuma matéria agendada\npara hoje",
             onItemClick = {
                 studentViewModel.selectSubject(it)
 
@@ -125,11 +130,13 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
         if (isBottomSheetVisible) {
             val selectedSubjectDailyStats = uiState.selectedSubject.subjectDTO.dailyStatistic
 
-            val data = listOf(
-                mutableListOf("Horas estudadas", selectedSubjectDailyStats.hours.toString()),
-                mutableListOf("Questões", selectedSubjectDailyStats.questions.toString()),
-                mutableListOf("Revisões", selectedSubjectDailyStats.reviews.toString()),
-            )
+            val data = remember {
+                mutableStateListOf(
+                    listOf("Horas estudadas", selectedSubjectDailyStats.hours.toString()),
+                    listOf("Questões", selectedSubjectDailyStats.questions.toString()),
+                    listOf("Revisões", selectedSubjectDailyStats.reviews.toString()),
+                )
+            }
 
             val coroutineScope = rememberCoroutineScope()
 
@@ -149,7 +156,7 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
                         .fillMaxHeight(0.75F)
                         .padding(horizontal = 20.dp)
                 ) {
-                    data.forEach { stringList ->
+                    data.forEachIndexed { index, stringList ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -168,7 +175,7 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
 
                             BasicTextField(
                                 value = stringList[1],
-                                onValueChange = { stringList[1] = it },
+                                onValueChange = { data[index] = listOf(stringList[0], it) },
                                 textStyle = TextStyle(
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Normal,

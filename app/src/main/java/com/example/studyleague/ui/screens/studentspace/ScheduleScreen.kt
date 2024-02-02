@@ -27,6 +27,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,27 +63,32 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     val studentViewModel = LocalStudentViewModel.current
     val studentUiState by studentViewModel.uiState.collectAsState()
 
+    var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
+
     LaunchedEffect(Unit) {
+        fetchState = FetchState.Loading
+
+        studentViewModel.fetchAllSubjects()
         studentViewModel.fetchSchedule()
+
+        fetchState = FetchState.Loaded(Unit)
 
         Log.d("ScheduleScreen", "Fetching schedule at launched effect")
     }
 
     val coroutineScope = rememberCoroutineScope()
 
-    when (studentUiState.schedule) {
-        is FetchState.Loaded -> ScheduleScreenContent(
-            modifier = modifier,
+    when (fetchState) {
+        is FetchState.Loaded -> ScheduleScreenContent(modifier = modifier,
             onDone = {
                 coroutineScope.launch {
                     studentViewModel.updateScheduleEntries(it)
-
-                    onDone()
                 }
+
+                onDone()
             },
             subjects = studentUiState.subjects.getLoadedValue(),
-            initialScheduleEntries = studentViewModel.getScheduleEntries()
-        )
+            initialScheduleEntriesGenerator = { studentViewModel.getScheduleEntries(it) })
 
         else -> {}
     }
@@ -93,11 +99,32 @@ fun ScheduleScreenContent(
     modifier: Modifier,
     onDone: (List<ScheduleEntryData>) -> Unit,
     subjects: List<Subject>,
-    initialScheduleEntries: List<ScheduleEntryData>
+    initialScheduleEntriesGenerator: ((ScheduleEntryData) -> Unit) -> List<ScheduleEntryData>
 ) {
     setFullscreenMode(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
 
-    val scheduleEntries = remember { initialScheduleEntries.toMutableList() }
+    var isDialogVisible by remember { mutableStateOf(false) }
+
+    var loadedScheduleEntryData by remember { mutableStateOf(ScheduleEntryData()) }
+
+    var scheduleDialogOnDone by remember { mutableStateOf({ _: ScheduleEntryData -> }) }
+
+    val scheduleEntries = remember { mutableStateListOf<ScheduleEntryData>() }
+
+    LaunchedEffect(Unit) {
+        scheduleEntries.addAll(initialScheduleEntriesGenerator {
+            loadedScheduleEntryData = it
+
+            scheduleDialogOnDone = { updatedSchedule ->
+                scheduleEntries.remove(it)
+                scheduleEntries.add(updatedSchedule)
+
+                isDialogVisible = false
+            }
+
+            isDialogVisible = true
+        })
+    }
 
     Scaffold(modifier = modifier, floatingActionButton = {
         DefaultIconButtom(
@@ -108,12 +135,6 @@ fun ScheduleScreenContent(
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }
     }) { paddingValues ->
-
-        var isDialogVisible by remember { mutableStateOf(false) }
-
-        var loadedScheduleEntryData by remember { mutableStateOf(ScheduleEntryData()) }
-
-        var scheduleDialogOnDone by remember { mutableStateOf({ _: ScheduleEntryData -> }) }
 
         Schedule(
             scheduleEntries = scheduleEntries,
@@ -234,8 +255,7 @@ fun ScheduleEntryInfoDialog(
                 )
             }
 
-            TextButton(
-                shape = RoundedCornerShape(0),
+            TextButton(shape = RoundedCornerShape(0),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
 

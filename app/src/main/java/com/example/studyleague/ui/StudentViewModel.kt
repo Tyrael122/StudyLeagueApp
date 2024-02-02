@@ -79,9 +79,7 @@ class StudentViewModel(
     }
 
     suspend fun updateScheduleEntries(scheduleEntries: List<ScheduleEntryData>) {
-        fetchSchedule()
         val currentScheduleEntries = getScheduleEntries()
-
         if (currentScheduleEntries.containsAll(scheduleEntries) && currentScheduleEntries.size == scheduleEntries.size) {
             return
         }
@@ -99,8 +97,6 @@ class StudentViewModel(
     }
 
     suspend fun fetchSchedule() {
-        fetchAllSubjects()
-
         _uiState.update {
             it.copy(schedule = FetchState.Loading)
         }
@@ -111,17 +107,21 @@ class StudentViewModel(
         }
     }
 
-    fun getScheduleEntries(): List<ScheduleEntryData> {
+    fun getScheduleEntries(defaultOnClick: (ScheduleEntryData) -> Unit = {}): List<ScheduleEntryData> {
         val listOfScheduleEntries = mutableListOf<ScheduleEntryData>()
 
         for (day in uiState.value.schedule.getLoadedValue().scheduleDTO.days) {
             for (scheduleEntry in day.schedule) {
+                val subject = findSubjectById(scheduleEntry.subjectId)
+
                 listOfScheduleEntries.add(
                     ScheduleEntryData(
-                        content = findSubjectById(scheduleEntry.subjectId).subjectDTO.name,
+                        content = subject.subjectDTO.name,
                         startTime = scheduleEntry.start,
                         endTime = scheduleEntry.end,
-                        dayOfWeek = day.dayOfWeek
+                        dayOfWeek = day.dayOfWeek,
+                        color = subject.color,
+                        onClick = defaultOnClick
                     )
                 )
             }

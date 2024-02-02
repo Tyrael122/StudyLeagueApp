@@ -77,16 +77,16 @@ fun GlobalStatsScreenContent() {
 
         val allTimeStats = studentStats.allTimeStatistic
         val globalItems = listOf(
-            listOf("Revisões totais", allTimeStats.reviews.toString()),
-            listOf("Questões totais", allTimeStats.questions.toString()),
-            listOf("Horas totais", allTimeStats.hours.toString())
+            listOf("Revisões", allTimeStats.reviews.toString()),
+            listOf("Questões", allTimeStats.questions.toString()),
+            listOf("Horas", allTimeStats.hours.toString())
         )
 
         val weeklyStats = studentStats.weeklyStatistic
         val weeeklyItems = listOf(
-            listOf("Revisões semanais", weeklyStats.reviews.toString()),
-            listOf("Questões semanais", weeklyStats.questions.toString()),
-            listOf("Horas semanais", weeklyStats.hours.toString())
+            listOf("Revisões", weeklyStats.reviews.toString()),
+            listOf("Questões", weeklyStats.questions.toString()),
+            listOf("Horas", weeklyStats.hours.toString())
         )
 
         Accordion(title = "Total", startsExpanded = true, body = {

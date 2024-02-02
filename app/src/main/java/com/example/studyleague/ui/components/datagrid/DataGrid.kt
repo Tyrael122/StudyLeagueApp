@@ -62,6 +62,7 @@ fun <T : DataGridView> DataGrid(
     onSelectionChanged: (List<T>) -> Unit = {},
     isDatagridItemSelectable: Boolean = false,
     isSearchBarVisible: Boolean = true,
+    noContentText: String = "Sem registros.",
 ) {
     Column(
         modifier = modifier
@@ -84,13 +85,15 @@ fun <T : DataGridView> DataGrid(
             isDataGridItemSelectable = isDatagridItemSelectable,
             selectAllItems = { selectionViewModel.selectAllItems() })
 
-        ItemGrid(onItemClick = onItemClick, columns = columns, onSelectItem = {
-            selectionViewModel.toggleItemSelection(it)
-        }, isDatagridItemSelectable = isDatagridItemSelectable, isItemSelected = {
-            uiState.selectedItems.contains(it)
-        }, items = items, modifier = Modifier
-            .weight(1F)
-            .background(Color.White)
+        LazyItemGrid(items = items.map { it.toDataGridView() },
+            columns = columns,
+            onItemClick = { onItemClick(items[it]) },
+            noContentText = noContentText,
+            isDataGridItemSelectable = isDatagridItemSelectable,
+            onSelectItem = { selectionViewModel.toggleItemSelection(items[it]) },
+            isItemSelected = { uiState.selectedItems.contains(items[it]) },
+            modifier = Modifier.weight(1F)
+                .background(Color.White)
         )
     }
 }
@@ -158,28 +161,9 @@ private fun DataGridColumnHeader(
 }
 
 @Composable
-private fun <V : DataGridView> ItemGrid(
-    modifier: Modifier = Modifier,
-    onItemClick: (V) -> Unit,
-    columns: List<DataGridColumnProperties>,
-    items: List<V>,
-    onSelectItem: (V) -> Unit,
-    isDatagridItemSelectable: Boolean,
-    isItemSelected: (V) -> Boolean,
-) {
-    LazyItemGrid(items = items.map { it.toDataGridView() },
-        columns = columns,
-        onItemClick = { onItemClick(items[it]) },
-        isDataGridItemSelectable = isDatagridItemSelectable,
-        onSelectItem = { onSelectItem(items[it]) },
-        isItemSelected = { isItemSelected(items[it]) },
-        modifier = modifier
-    )
-}
-
-@Composable
 private fun LazyItemGrid(
     modifier: Modifier = Modifier,
+    noContentText: String,
     items: List<DataGridRowContent>,
     columns: List<DataGridColumnProperties>,
     onItemClick: (Int) -> Unit,
@@ -194,7 +178,7 @@ private fun LazyItemGrid(
         if (items.isEmpty()) {
             item {
                 NoContentIndicator(
-                    text = "Sem registros.\nPuxe para baixo para atualizar.",
+                    text = noContentText,
                     modifier = Modifier.fillParentMaxSize()
                 )
             }
@@ -338,7 +322,7 @@ interface DataGridView {
 @Composable
 fun NoContentIndicator(
     modifier: Modifier = Modifier,
-    text: String = "Sem registros.",
+    text: String,
 ) {
     IconIndicator(
         modifier = modifier,
@@ -384,31 +368,3 @@ data class DataGridColumnProperties(
 )
 
 data class DataGridRowContent(val texts: List<String>)
-
-@Preview
-@Composable
-fun DataGridPreview() {
-//    SIGATheme(useDarkTheme = false) {
-//        DataGrid(
-//            columns = listOf(
-//                DataGridColumnProperties("Nome", 1F, TextAlign.Start),
-//                DataGridColumnProperties("Descrição", 1F, TextAlign.Start),
-//            ), fetchData = {}, fetchResult = FetchResult.Success(
-//                listOf(
-////                    Course("Ciência da Computação", "Curso de computação", 10, 5),
-////                    Course("Engenharia de Software", "Curso de computação", 10, 5),
-////                    Course("Direito", "Curso de computação", 10, 5),
-////                    Course("Biologia", "Curso de computação", 10, 5),
-////                    Course("Medicina", "Curso de computação", 10, 5),
-////                    Course("Ciência da Computação", "Curso de computação", 10, 5),
-////                    Course("Engenharia de Software", "Curso de computação", 10, 5),
-////                    Course("Direito", "Curso de computação", 10, 5),
-////                    Course("Biologia", "Curso de computação", 10, 5),
-////                    Course("Medicina", "Curso de computação", 10, 5),
-////                    Course("Ciência da Computação", "Curso de computação", 10, 5),
-////                    Course("Engenharia de Software", "Curso de computação", 10, 5),
-//                )
-//            ), isDatagridItemSelectable = true
-//        )
-//    }
-}

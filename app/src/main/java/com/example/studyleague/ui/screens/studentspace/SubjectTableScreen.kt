@@ -25,13 +25,16 @@ fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit) {
 
     when (uiState.subjects) {
         is FetchState.Loaded -> StudentSpaceDefaultColumn {
-            DataGrid(columns = Subject.columns,
-                items = uiState.subjects.getLoadedValue(),
+            DataGrid(
                 onItemClick = {
                     studentViewModel.selectSubject(it)
 
                     navigateToSubject(it)
-                })
+                },
+                columns = Subject.columns,
+                items = uiState.subjects.getLoadedValue(),
+                noContentText = "Nenhuma matéria agendada para hoje"
+            )
         }
 
         else -> {}

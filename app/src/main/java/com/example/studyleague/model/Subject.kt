@@ -10,7 +10,6 @@ import dtos.SubjectDTO
 
 data class Subject(
     val subjectDTO: SubjectDTO = SubjectDTO(),
-//    val name: String by subjectDTO::name,
     val color: Color = Color.randomReadableColor(),
 ) : DataGridView {
 
@@ -19,7 +18,7 @@ data class Subject(
             listOf(
                 this.subjectDTO.name,
                 this.subjectDTO.allTimeStatistic.hours.toString(),
-                "0" // TODO: Workload here.
+                this.subjectDTO.weeklyGoals.hours.toString(),
             )
         )
     }
