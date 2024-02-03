@@ -34,6 +34,7 @@ import com.example.studyleague.ui.components.NavigationItemBuilder
 import com.example.studyleague.ui.components.StudentTopBar
 import com.example.studyleague.ui.components.TopBarTitleHelper
 import com.example.studyleague.ui.components.TopBarTitleStyles
+import com.example.studyleague.ui.screens.studentspace.AddSubjectScreen
 import com.example.studyleague.ui.screens.studentspace.DailyStatsScreen
 import com.example.studyleague.ui.screens.studentspace.GlobalStatsScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
@@ -140,11 +141,16 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         }
 
         composable(StudentScreen.SUBJECTS_TABLE.name) {
-            SubjectTableScreen(navigateToSubject = { navController.navigate(StudentScreen.SUBJECT.name) })
+            SubjectTableScreen(navigateToSubject = { navController.navigate(StudentScreen.SUBJECT.name) },
+                navigateToAddSubjectScreen = { navController.navigate(StudentScreen.ADD_SUBJECT.name) })
         }
 
         composable(StudentScreen.SUBJECT.name) {
             SubjectScreen()
+        }
+
+        composable(StudentScreen.ADD_SUBJECT.name) {
+            AddSubjectScreen(onDone = { navController.navigate(StudentScreen.SUBJECTS_TABLE.name) })
         }
 
         composable(StudentScreen.SCHEDULE.name) {
@@ -204,7 +210,7 @@ fun createNavigationItems(navController: NavHostController): List<NavigationItem
     val navItemBuilder = NavigationItemBuilder(navController)
 
     for (screen in StudentScreen.entries) {
-        if (screen == StudentScreen.SUBJECT) continue
+        if (invisibleRoutes.contains(screen)) continue
 
         navItemBuilder.addNavigationItem(
             label = screen.label, route = screen.name, imageVector = screen.icon
@@ -224,5 +230,7 @@ enum class StudentScreen(val icon: ImageVector, val label: String) {
     SUBJECTS_TABLE(
         Icons.Filled.House, "Matérias"
     ),
-    SUBJECT(Icons.Filled.House, ""),
+    SUBJECT(Icons.Filled.House, ""), ADD_SUBJECT(Icons.Filled.House, ""),
 }
+
+val invisibleRoutes = listOf(StudentScreen.ADD_SUBJECT, StudentScreen.SUBJECT)

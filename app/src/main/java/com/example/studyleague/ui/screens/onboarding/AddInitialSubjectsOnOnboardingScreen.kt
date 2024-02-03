@@ -30,7 +30,7 @@ import dtos.SubjectDTO
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
+fun AddInitialSubjectsOnOnboardingScreen(navigateToNextScreen: () -> Unit) {
     val subjects = remember {
         mutableStateListOf<String>()
     }

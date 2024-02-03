@@ -12,7 +12,7 @@ import com.example.studyleague.data.DataStoreManager
 import com.example.studyleague.ui.StudentViewModel
 import com.example.studyleague.ui.screens.StudentScreen
 import com.example.studyleague.ui.screens.StudentSpace
-import com.example.studyleague.ui.screens.onboarding.AddSubjectsScreen
+import com.example.studyleague.ui.screens.onboarding.AddInitialSubjectsOnOnboardingScreen
 import com.example.studyleague.ui.screens.onboarding.OnboardingScreen
 import com.example.studyleague.ui.screens.onboarding.PersonalInfoScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
@@ -51,7 +51,7 @@ fun StudyLeagueApp() {
             }
 
             composable(Screen.ADD_SUBJECTS.name) {
-                AddSubjectsScreen(navigateToNextScreen = { navController.navigate(Screen.SCHEDULE_EXPLANATION.name) })
+                AddInitialSubjectsOnOnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.SCHEDULE_EXPLANATION.name) })
             }
 
             composable(Screen.SCHEDULE_EXPLANATION.name) {

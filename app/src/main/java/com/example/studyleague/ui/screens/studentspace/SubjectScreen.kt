@@ -59,7 +59,6 @@ fun SubjectScreen() {
     val uiState by studentViewModel.uiState.collectAsState()
     val selectedSubject = uiState.selectedSubject
 
-
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -122,6 +121,8 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
                 studentViewModel.updateSelectedSubjectWeeklyGoals(allTimeGoals.map { it[1].toFloat() })
 
                 studentViewModel.fetchAllSubjects()
+
+                // TODO: Show a pop up warning the user that the action has been completed.
             }
         }, modifier = Modifier.padding(bottom = 15.dp, end = 15.dp)) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
