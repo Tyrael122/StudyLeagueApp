@@ -42,6 +42,8 @@ fun DrawerContent(
     onLogout: () -> Unit = {},
     closeDrawer: () -> Unit,
     isCompactMode: Boolean = true,
+    userInfoTitle: String,
+    userInfoSubtitle: String,
 ) {
     ModalDrawerSheet(
         drawerShape = RectangleShape,
@@ -54,7 +56,7 @@ fun DrawerContent(
 
             Column {
                 if (!isCompactMode) {
-                    UserInfo(modifier = Modifier.padding(top = 20.dp, bottom = 45.dp))
+                    UserInfo(title = userInfoTitle, subtitle = userInfoSubtitle, modifier = Modifier.padding(top = 20.dp, bottom = 45.dp))
                 }
 
                 items.forEach { item ->
@@ -84,7 +86,7 @@ fun DrawerContent(
 }
 
 @Composable
-fun UserInfo(modifier: Modifier = Modifier) {
+fun UserInfo(title: String, subtitle: String, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()
     ) {
@@ -96,14 +98,14 @@ fun UserInfo(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Salomão Memória", // TODO: Set this to the student's name
+            text = title,
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ), modifier = Modifier.padding(top = 10.dp)
         )
 
         Text(
-            text = "Direito", // TODO: Set this to the student's goal
+            text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Normal,
         )

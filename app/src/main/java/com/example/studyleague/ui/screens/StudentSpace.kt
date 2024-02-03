@@ -64,8 +64,16 @@ fun StudentSpace(
 
     val isCompactMode = currentRoute == StudentScreen.SCHEDULE.name
 
+    val studentViewModel = LocalStudentViewModel.current
+    val uiState by studentViewModel.uiState.collectAsState()
+    val student = uiState.student.studentDTO
+
     StudentNavigationDrawer(
-        currentRoute = currentRoute, navigationItems = navItems, isCompactMode = isCompactMode
+        studentName = student.name,
+        studentGoal = student.goal,
+        currentRoute = currentRoute,
+        navigationItems = navItems,
+        isCompactMode = isCompactMode
     ) { openNavDrawer ->
         Scaffold(bottomBar = bottomBar, topBar = {
             if (!isCompactMode) {
@@ -111,7 +119,7 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
         }
 
         else -> {
-            TopBarTitleHelper.buildTextComposable("Direito")
+            TopBarTitleHelper.buildTextComposable(uiState.student.studentDTO.goal)
         }
     }
 }
@@ -150,6 +158,8 @@ fun StudentNavigationDrawer(
     modifier: Modifier = Modifier,
     currentRoute: String,
     isCompactMode: Boolean = false,
+    studentName: String,
+    studentGoal: String,
     navigationItems: List<NavigationItem>,
     content: @Composable (() -> Unit) -> Unit
 ) {
@@ -157,14 +167,18 @@ fun StudentNavigationDrawer(
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(modifier = modifier, drawerState = drawerState, drawerContent = {
-        DrawerContent(items = navigationItems,
+        DrawerContent(
+            items = navigationItems,
             currentRoute = currentRoute,
-            isCompactMode = isCompactMode,
             closeDrawer = {
                 scope.launch {
                     drawerState.close()
                 }
-            })
+            },
+            isCompactMode = isCompactMode,
+            userInfoTitle = studentName,
+            userInfoSubtitle = studentGoal
+        )
     }) {
         content { scope.launch { drawerState.open() } }
     }

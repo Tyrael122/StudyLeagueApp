@@ -147,7 +147,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
             Accordion(title = "Metas - Semanais", body = {
                 Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
                     if (index == 0) return@TextFieldRow
-                    allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
+                    weeklyGoals[index] = listOf(weeklyGoals[index][0], string)
                 })
             })
         }

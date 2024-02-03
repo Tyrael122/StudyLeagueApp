@@ -2,7 +2,6 @@ package com.example.studyleague.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.studyleague.data.DataStoreKeys
@@ -24,7 +23,6 @@ import enums.StatisticType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 
@@ -40,15 +38,35 @@ class StudentViewModel(
     init {
         runBlocking {
 //            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
-//            if (studentId == null) {
-//                createStudent()
-//            } else {
+//            if (studentId != null) {
 //                fetchStudent(studentId)
 //            }
 
-            fetchStudent(1)
+//            fetchStudent(1)
         }
     }
+
+    suspend fun createStudent(name: String, goal: String, studyArea: String): Boolean {
+        if (name.isEmpty() || goal.isEmpty() || studyArea.isEmpty()) {
+            return false // TODO: Put this validation in the API as well.
+        }
+
+        var studentDTO = StudentDTO()
+        studentDTO.name = name
+        studentDTO.goal = goal
+        studentDTO.studyArea = studyArea
+
+        studentDTO = studentRepository.createStudent(studentDTO)
+
+        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
+        }
+
+        return true
+    }
+
 
     suspend fun addSubjects(subjects: List<Subject>) {
         if (subjects.isEmpty()) {
@@ -216,16 +234,6 @@ class StudentViewModel(
     private fun findSubjectById(subjectId: Long): Subject {
         return uiState.value.subjects.getLoadedValue().find { it.subjectDTO.id == subjectId }
             ?: throw IllegalArgumentException("Subject not found.")
-    }
-
-    private suspend fun createStudent() {
-        val studentDTO = studentRepository.createStudent(StudentDTO())
-
-        _uiState.update {
-            it.copy(student = Student(studentDTO = studentDTO))
-        }
-
-        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
     }
 
     private suspend fun fetchStudent(studentId: Long) {

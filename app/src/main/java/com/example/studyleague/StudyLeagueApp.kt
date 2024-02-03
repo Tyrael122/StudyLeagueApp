@@ -1,6 +1,5 @@
 package com.example.studyleague
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -15,12 +14,13 @@ import com.example.studyleague.ui.screens.StudentScreen
 import com.example.studyleague.ui.screens.StudentSpace
 import com.example.studyleague.ui.screens.onboarding.AddSubjectsScreen
 import com.example.studyleague.ui.screens.onboarding.OnboardingScreen
+import com.example.studyleague.ui.screens.onboarding.PersonalInfoScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
 
 enum class Screen {
-    ONBOARDING, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
+    ONBOARDING, PERSONAL_INFO, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
 }
 
 val LocalStudentViewModel =
@@ -32,7 +32,7 @@ fun StudyLeagueApp() {
     val context = LocalContext.current
 
 //    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
-    val hasCompletedOnboarding = true
+    val hasCompletedOnboarding = false
 
     val studentViewModel: StudentViewModel =
         viewModel(factory = StudentViewModel.factory(DataStoreManager(context)))
@@ -43,7 +43,11 @@ fun StudyLeagueApp() {
             startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
         ) {
             composable(Screen.ONBOARDING.name) {
-                OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
+                OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.PERSONAL_INFO.name) })
+            }
+
+            composable(Screen.PERSONAL_INFO.name) {
+                PersonalInfoScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
             }
 
             composable(Screen.ADD_SUBJECTS.name) {

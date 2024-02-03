@@ -18,15 +18,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.studyleague.LocalStudentViewModel
 import com.example.studyleague.model.Subject
 import com.example.studyleague.ui.components.DefaultOutlinedTextField
 import com.example.studyleague.ui.components.OnboardingButton
+import com.example.studyleague.ui.components.OnboardingColumn
+import com.example.studyleague.ui.components.OnboardingTitle
 import dtos.SubjectDTO
 import kotlinx.coroutines.launch
 
@@ -36,23 +35,11 @@ fun AddSubjectsScreen(navigateToNextScreen: () -> Unit) {
         mutableStateListOf<String>()
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .padding(top = 20.dp, bottom = 30.dp)
-            .padding(horizontal = 20.dp)
-    ) {
+    OnboardingColumn {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                "Quais as matérias que você estuda?",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                lineHeight = 40.sp
-            )
+            OnboardingTitle(text = "Quais as matérias que você estuda?")
 
             Spacer(Modifier.height(30.dp))
 

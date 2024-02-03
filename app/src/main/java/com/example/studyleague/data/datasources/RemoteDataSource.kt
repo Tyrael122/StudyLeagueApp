@@ -17,7 +17,7 @@ import retrofit2.Retrofit
 import java.time.LocalDate
 
 
-private const val BASE_URL = "http://192.168.0.11:8080/"
+private const val BASE_URL = "http://192.168.225.122:8080/"
 
 private val json = Json {
     ignoreUnknownKeys = true
