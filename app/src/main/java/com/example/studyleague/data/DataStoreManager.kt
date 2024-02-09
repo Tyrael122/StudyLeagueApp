@@ -15,7 +15,9 @@ const val DATA_STORE_NAME = "settings"
 
 class DataStoreManager(private val context: Context) {
 
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DATA_STORE_NAME)
+    companion object {
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DATA_STORE_NAME)
+    }
 
     suspend fun <T> getValueFromDataStore(key: Preferences.Key<T>): T? {
         return context.dataStore.data.map { preferences ->

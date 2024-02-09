@@ -1,6 +1,5 @@
 package com.example.studyleague.data.datasources
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dtos.SubjectDTO
 import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
@@ -11,23 +10,10 @@ import enums.DateRangeType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.Retrofit
 import java.time.LocalDate
 
 
-private const val BASE_URL = "http://192.168.225.122:8080/"
-
-private val json = Json {
-    ignoreUnknownKeys = true
-    coerceInputValues = true
-}
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-    .baseUrl(BASE_URL).build()
-
+private val retrofit = RetrofitBuilder.buildRetrofit()
 
 class RemoteDataSource(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -73,7 +59,12 @@ class RemoteDataSource(
         }
     }
 
-    suspend fun postSubjectGoals(studentId: Long, subjectId: Long, dateRangeType: DateRangeType, goals: List<WriteGoalDTO>) {
+    suspend fun postSubjectGoals(
+        studentId: Long,
+        subjectId: Long,
+        dateRangeType: DateRangeType,
+        goals: List<WriteGoalDTO>
+    ) {
         return withContext(ioDispatcher) {
             retrofitService.postSubjectGoals(studentId, subjectId, dateRangeType, goals)
         }

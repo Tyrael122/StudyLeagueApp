@@ -37,12 +37,10 @@ class StudentViewModel(
 
     init {
         runBlocking {
-//            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
-//            if (studentId != null) {
-//                fetchStudent(studentId)
-//            }
-
-//            fetchStudent(1)
+            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
+            if (studentId != null) {
+                fetchStudent(studentId)
+            }
         }
     }
 
@@ -135,8 +133,8 @@ class StudentViewModel(
                 listOfScheduleEntries.add(
                     ScheduleEntryData(
                         content = subject.subjectDTO.name,
-                        startTime = scheduleEntry.start,
-                        endTime = scheduleEntry.end,
+                        startTime = scheduleEntry.startTime,
+                        endTime = scheduleEntry.endTime,
                         dayOfWeek = day.dayOfWeek,
                         color = subject.color,
                         onClick = defaultOnClick

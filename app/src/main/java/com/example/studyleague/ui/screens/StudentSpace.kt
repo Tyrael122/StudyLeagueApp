@@ -114,7 +114,7 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
             val currentDayOfWeek = uiState.currentDate.dayOfWeek
             val newTitle = currentDayOfWeek.getDisplayName(
                 java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
-            )
+            ).replaceFirstChar { it.uppercase() }
 
             TopBarTitleHelper.buildTextComposable(newTitle)
         }

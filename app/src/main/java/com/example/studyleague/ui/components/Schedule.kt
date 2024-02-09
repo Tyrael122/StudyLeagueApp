@@ -262,8 +262,8 @@ data class ScheduleEntryData(
     val onClick: (ScheduleEntryData) -> Unit = {},
 ) {
     fun toScheduleEntryDTO(subjects: List<Subject>) = ScheduleEntryDTO(
-        start = startTime,
-        end = endTime,
+        startTime = startTime,
+        endTime = endTime,
         subjectId = subjects.find { it.subjectDTO.name == content }?.subjectDTO?.id
             ?: throw IllegalArgumentException("Subject not found.")
     )

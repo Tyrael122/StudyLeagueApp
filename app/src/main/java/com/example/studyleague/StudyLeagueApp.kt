@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.studyleague.data.DataStoreKeys
 import com.example.studyleague.data.DataStoreManager
 import com.example.studyleague.ui.StudentViewModel
 import com.example.studyleague.ui.screens.StudentScreen
@@ -18,6 +19,7 @@ import com.example.studyleague.ui.screens.onboarding.PersonalInfoScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import com.example.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import com.example.studyleague.ui.screens.studentspace.ScheduleScreen
+import kotlinx.coroutines.runBlocking
 
 enum class Screen {
     ONBOARDING, PERSONAL_INFO, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
@@ -31,11 +33,16 @@ fun StudyLeagueApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-//    val hasCompletedOnboarding = runBlocking { getBooleanValueFromDataStore(context, hasCompletedOnboardingKey) }
-    val hasCompletedOnboarding = false
+    val dataStoreManager = DataStoreManager(context)
 
     val studentViewModel: StudentViewModel =
-        viewModel(factory = StudentViewModel.factory(DataStoreManager(context)))
+        viewModel(factory = StudentViewModel.factory(dataStoreManager))
+
+    val hasCompletedOnboarding = runBlocking {
+        dataStoreManager.getValueFromDataStore(
+            DataStoreKeys.hasCompletedOnboardingKey
+        ) ?: false
+    }
 
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
@@ -51,7 +58,11 @@ fun StudyLeagueApp() {
             }
 
             composable(Screen.ADD_SUBJECTS.name) {
-                AddInitialSubjectsOnOnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.SCHEDULE_EXPLANATION.name) })
+                AddInitialSubjectsOnOnboardingScreen(navigateToNextScreen = {
+                    navController.navigate(
+                        Screen.SCHEDULE_EXPLANATION.name
+                    )
+                })
             }
 
             composable(Screen.SCHEDULE_EXPLANATION.name) {
@@ -74,11 +85,11 @@ fun StudyLeagueApp() {
                 StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
 
                 if (!hasCompletedOnboarding) {
-//                    runBlocking {
-//                        setDataStoreValue(
-//                            true, context, DataStoreKeys.hasCompletedOnboardingKey
-//                        )
-//                    }
+                    runBlocking {
+                        dataStoreManager.setDataStoreValue(
+                            DataStoreKeys.hasCompletedOnboardingKey, true
+                        )
+                    }
                 }
             }
         }
