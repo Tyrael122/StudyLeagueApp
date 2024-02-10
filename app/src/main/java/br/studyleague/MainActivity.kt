@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import br.studyleague.StudyLeagueApp
 import br.studyleague.ui.theme.StudyLeagueTheme
+import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +26,31 @@ class MainActivity : ComponentActivity() {
 
 //        defineUncaughtExceptionBehavior()
 
+        setContentWithComposeTimeException()
+//        setContentWithClickableButton()
+
+//        setDefaultContent()
+    }
+
+    private fun setContentWithComposeTimeException() {
+        setContent {
+            throw IllegalArgumentException("This is a test exception, being thrown at composition, at the beginning of the setContent block." +
+                    " Timestamp: ${System.currentTimeMillis()}, formatted: ${LocalDateTime.now()}")
+        }
+    }
+
+    private fun setContentWithClickableButton() {
+        setContent {
+            Button(onClick = {
+                Log.d("Firebase", "Clicked on button, now throwing exception for testing purposes")
+                throw IllegalArgumentException("This is a test exception")
+            }) {
+                Text("Click me")
+            }
+        }
+    }
+
+    private fun setDefaultContent() {
         setContent {
             StudyLeagueTheme(darkTheme = false) {
                 Surface(
@@ -38,25 +64,12 @@ class MainActivity : ComponentActivity() {
 
     private fun defineUncaughtExceptionBehavior() {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            setContent {
-                StudyLeagueTheme(darkTheme = false) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        ErrorScreen()
-                    }
-                }
-            }
-
             Log.e(
-                "UncaughtExceptionHandler",
-                "Uncaught exception in thread ${thread.name}",
-                throwable
+                "Firebase", "Uncaught exception in thread ${thread.name}", throwable
             )
 
-            // TODO: Exit the activity.
-            thread.uncaughtExceptionHandler?.uncaughtException(thread, throwable)
+            finish()
+//            thread.uncaughtExceptionHandler?.uncaughtException(thread, throwable)
         }
     }
 }

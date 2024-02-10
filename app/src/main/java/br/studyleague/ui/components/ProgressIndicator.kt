@@ -32,10 +32,10 @@ fun ProgressIndicator(modifier: Modifier = Modifier, header: String, target: Int
         }
 
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth(),
             color = Color.Black,
             strokeCap = StrokeCap.Round,
-            modifier = Modifier.fillMaxWidth()
         )
 
         Text("$current/$target", fontSize = 12.sp, fontWeight = FontWeight.Light)

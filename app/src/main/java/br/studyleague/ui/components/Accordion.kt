@@ -14,7 +14,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,7 +62,7 @@ fun Accordion(
                     .padding(bottom = 10.dp)
                     .padding(horizontal = horizontalPadding)
             ) {
-                Accordion.Divider()
+                Accordion.HorizontalDivider()
 
                 body()
             }
@@ -144,9 +144,10 @@ object Accordion {
     }
 
     @Composable
-    fun Divider(modifier: Modifier = Modifier) {
-        Divider(
-            color = Color(0x40000000), modifier = modifier.fillMaxWidth()
+    fun HorizontalDivider(modifier: Modifier = Modifier) {
+        HorizontalDivider(
+            modifier = modifier.fillMaxWidth(),
+            color = Color(0x40000000)
         )
     }
 }
