@@ -17,7 +17,7 @@
         android:theme="@style/Theme.StudyLeague"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name="br.studyleague.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.StudyLeague">
             <intent-filter>
