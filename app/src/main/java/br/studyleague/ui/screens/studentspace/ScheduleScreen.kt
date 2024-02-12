@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -53,7 +54,9 @@ import br.studyleague.ui.components.Schedule
 import br.studyleague.ui.components.ScheduleEntryData
 import br.studyleague.ui.components.StudentDropdownMenu
 import br.studyleague.ui.components.TimePickerDialog
+import dtos.SubjectDTO
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalTime
 
 
@@ -178,6 +181,10 @@ fun ScheduleScreenContent(
             ScheduleEntryInfoDialog(initialScheduleEntry = loadedScheduleEntryData,
                 availableSubjects = subjects,
                 onDone = scheduleDialogOnDone,
+                onDelete = {
+                    scheduleEntries.remove(loadedScheduleEntryData)
+                    isDialogVisible = false
+                },
                 onDismissRequest = {
                     isDialogVisible = false
                 })
@@ -191,87 +198,105 @@ fun ScheduleEntryInfoDialog(
     initialScheduleEntry: ScheduleEntryData,
     availableSubjects: List<Subject>,
     onDismissRequest: () -> Unit,
+    onDelete: () -> Unit,
     onDone: (ScheduleEntryData) -> Unit
 ) {
     DefaultDialog(
         onDismissRequest = onDismissRequest, modifier = Modifier.width(300.dp)
     ) {
-        var copiedScheduleEntry by remember { mutableStateOf(initialScheduleEntry.copy()) }
+        var copiedScheduleEntry by remember { mutableStateOf(initialScheduleEntry) }
 
         var timePickerTime by remember { mutableStateOf(LocalTime.MIDNIGHT) }
         var timePickerCallback by remember { mutableStateOf({ _: LocalTime -> }) }
 
         var isTimePickerVisible by remember { mutableStateOf(false) }
 
-        Column(verticalArrangement = Arrangement.SpaceBetween) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
-                modifier = Modifier.padding(15.dp)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+            modifier = Modifier
+                .padding(horizontal = 15.dp)
+                .padding(top = 15.dp, bottom = 5.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    NumberButton(onClick = {
-                        timePickerTime = copiedScheduleEntry.startTime
-                        timePickerCallback = {
-                            copiedScheduleEntry = copiedScheduleEntry.copy(startTime = it)
-                        }
-
-                        isTimePickerVisible = true
-                    }) {
-                        NumberText(text = copiedScheduleEntry.startTime.toString())
+                NumberButton(onClick = {
+                    timePickerTime = copiedScheduleEntry.startTime
+                    timePickerCallback = {
+                        copiedScheduleEntry = copiedScheduleEntry.copy(startTime = it)
                     }
 
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .width(35.dp),
-                        color = Color.Black
-                    )
-
-                    NumberButton(onClick = {
-                        timePickerTime = copiedScheduleEntry.endTime
-                        timePickerCallback = {
-                            copiedScheduleEntry = copiedScheduleEntry.copy(endTime = it)
-                        }
-
-                        isTimePickerVisible = true
-                    }) {
-                        NumberText(text = copiedScheduleEntry.endTime.toString())
-                    }
+                    isTimePickerVisible = true
+                }) {
+                    NumberText(text = copiedScheduleEntry.startTime.toString())
                 }
 
-                StudentDropdownMenu(
-                    options = availableSubjects.map { it.subjectDTO.name },
-                    selectedOptionText = copiedScheduleEntry.content,
-                    onSelectionChanged = {
-                        copiedScheduleEntry = copiedScheduleEntry.copy(content = it)
-                    },
-                    isSearchable = false,
-                    placeholder = { Text("Escolha uma matéria") },
-                    modifier = Modifier.shadow(1.dp, RoundedCornerShape(10.dp))
+                HorizontalDivider(
+                    modifier = Modifier.width(35.dp), color = Color.Black
                 )
+
+                NumberButton(onClick = {
+                    timePickerTime = copiedScheduleEntry.endTime
+                    timePickerCallback = {
+                        copiedScheduleEntry = copiedScheduleEntry.copy(endTime = it)
+                    }
+
+                    isTimePickerVisible = true
+                }) {
+                    NumberText(text = copiedScheduleEntry.endTime.toString())
+                }
             }
 
-            TextButton(shape = RoundedCornerShape(0),
+            StudentDropdownMenu(
+                options = availableSubjects.map { it.subjectDTO.name },
+                selectedOptionText = copiedScheduleEntry.content,
+                onSelectionChanged = {
+                    copiedScheduleEntry = copiedScheduleEntry.copy(content = it)
+                },
+                isSearchable = false,
+                placeholder = { Text("Escolha uma matéria") },
+                modifier = Modifier.shadow(1.dp, RoundedCornerShape(10.dp))
+            )
+
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = {
-
-                    val subjectColor = availableSubjects.find {
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(onClick = {
+                    val subject = availableSubjects.find {
                         it.subjectDTO.name == copiedScheduleEntry.content
-                    }?.color ?: throw IllegalArgumentException("Subject not found")
+                    }
 
-                    onDone(
-                        copiedScheduleEntry.copy(color = subjectColor)
-                    )
+                    if (subject != null) {
+                        onDone(
+                            copiedScheduleEntry.copy(color = subject.color)
+                        )
+                    } else {
+                        onDismissRequest()
+                    }
+
                 }) {
-                Text(
-                    "Confirmar",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Light,
-                    color = Color.Black,
-                )
+                    Text(
+                        "Confirmar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Light,
+                        color = Color.Black,
+                    )
+                }
+
+                TextButton(
+                    onClick = onDelete,
+                ) {
+                    Text(
+                        "Deletar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Light,
+                        color = Color.Black
+                    )
+                }
             }
         }
 
@@ -320,4 +345,22 @@ fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
     else -> null
+}
+
+@Preview
+@Composable
+fun ScheduleScreenPreview() {
+    ScheduleEntryInfoDialog(initialScheduleEntry = ScheduleEntryData(
+        startTime = LocalTime.of(8, 0),
+        endTime = LocalTime.of(9, 0),
+        dayOfWeek = DayOfWeek.MONDAY,
+        content = "Matemática",
+        color = Color.Blue
+    ), availableSubjects = listOf(
+        Subject(
+            subjectDTO = SubjectDTO(
+                name = "Matemática"
+            )
+        )
+    ), onDismissRequest = { /*TODO*/ }, onDone = { /*TODO*/ }, onDelete = { /*TODO*/ })
 }

@@ -53,17 +53,17 @@ fun StudentSpace(
     var currentRoute by remember {
         mutableStateOf(
             navController.currentBackStackEntry?.destination?.route
-                ?: StudentScreen.GLOBAL_STATS.name
+                ?: StudentScreens.GLOBAL_STATS.name
         )
     }
 
     navController.addOnDestinationChangedListener(listener = { controller, destination, arguments ->
-        currentRoute = destination.route ?: StudentScreen.GLOBAL_STATS.name
+        currentRoute = destination.route ?: StudentScreens.GLOBAL_STATS.name
     })
 
     val navItems = createNavigationItems(navController)
 
-    val isCompactMode = currentRoute == StudentScreen.SCHEDULE.name
+    val isCompactMode = currentRoute == StudentScreens.SCHEDULE.name
 
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
@@ -90,7 +90,7 @@ fun StudentSpace(
             ) {
                 StudentNavGraph(
                     navController = navController,
-                    startDestination = if (hasCompletedOnboarding) StudentScreen.GLOBAL_STATS.name else StudentScreen.SUBJECTS_TABLE.name
+                    startDestination = if (hasCompletedOnboarding) StudentScreens.GLOBAL_STATS.name else StudentScreens.SUBJECTS_TABLE.name
                 )
             }
         }
@@ -104,29 +104,29 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         startDestination = startDestination,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(StudentScreen.GLOBAL_STATS.name) {
+        composable(StudentScreens.GLOBAL_STATS.name) {
             GlobalStatsScreen()
         }
 
-        composable(StudentScreen.DAILY_STATS.name) {
+        composable(StudentScreens.DAILY_STATS.name) {
             DailyStatsScreen()
         }
 
-        composable(StudentScreen.SUBJECTS_TABLE.name) {
-            SubjectTableScreen(navigateToSubject = { navController.navigate(StudentScreen.SUBJECT.name) },
-                navigateToAddSubjectScreen = { navController.navigate(StudentScreen.ADD_SUBJECT.name) })
+        composable(StudentScreens.SUBJECTS_TABLE.name) {
+            SubjectTableScreen(navigateToSubject = { navController.navigate(StudentScreens.SUBJECT.name) },
+                navigateToAddSubjectScreen = { navController.navigate(StudentScreens.ADD_SUBJECT.name) })
         }
 
-        composable(StudentScreen.SUBJECT.name) {
+        composable(StudentScreens.SUBJECT.name) {
             SubjectScreen()
         }
 
-        composable(StudentScreen.ADD_SUBJECT.name) {
-            AddSubjectScreen(onDone = { navController.navigate(StudentScreen.SUBJECTS_TABLE.name) })
+        composable(StudentScreens.ADD_SUBJECT.name) {
+            AddSubjectScreen(onDone = { navController.navigate(StudentScreens.SUBJECTS_TABLE.name) })
         }
 
-        composable(StudentScreen.SCHEDULE.name) {
-            ScheduleScreen(onDone = { navController.navigate(StudentScreen.GLOBAL_STATS.name) })
+        composable(StudentScreens.SCHEDULE.name) {
+            ScheduleScreen(onDone = { navController.navigate(StudentScreens.GLOBAL_STATS.name) })
         }
     }
 }
@@ -184,14 +184,14 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
     val uiState by studentViewModel.uiState.collectAsState()
 
     return when (currentRoute) {
-        StudentScreen.SUBJECT.name -> {
+        StudentScreens.SUBJECT.name -> {
             val selectedSubject = uiState.selectedSubject
             TopBarTitleHelper.buildTextComposable(
                 selectedSubject.subjectDTO.name, TopBarTitleStyles.medium()
             )
         }
 
-        StudentScreen.DAILY_STATS.name -> {
+        StudentScreens.DAILY_STATS.name -> {
             val currentDayOfWeek = uiState.currentDate.dayOfWeek
             val newTitle = currentDayOfWeek.getDisplayName(
                 java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
@@ -209,7 +209,7 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
 fun createNavigationItems(navController: NavHostController): List<NavigationItem> {
     val navItemBuilder = NavigationItemBuilder(navController)
 
-    for (screen in StudentScreen.entries) {
+    for (screen in StudentScreens.entries) {
         if (invisibleRoutes.contains(screen)) continue
 
         navItemBuilder.addNavigationItem(
@@ -220,7 +220,7 @@ fun createNavigationItems(navController: NavHostController): List<NavigationItem
     return navItemBuilder.build()
 }
 
-enum class StudentScreen(val icon: ImageVector, val label: String) {
+enum class StudentScreens(val icon: ImageVector, val label: String) {
     GLOBAL_STATS(
         Icons.Filled.House, "Total"
     ),
@@ -233,4 +233,4 @@ enum class StudentScreen(val icon: ImageVector, val label: String) {
     SUBJECT(Icons.Filled.House, ""), ADD_SUBJECT(Icons.Filled.House, ""),
 }
 
-val invisibleRoutes = listOf(StudentScreen.ADD_SUBJECT, StudentScreen.SUBJECT)
+val invisibleRoutes = listOf(StudentScreens.ADD_SUBJECT, StudentScreens.SUBJECT)

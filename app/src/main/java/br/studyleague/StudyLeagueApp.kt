@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import br.studyleague.data.DataStoreKeys
 import br.studyleague.data.DataStoreManager
 import br.studyleague.ui.StudentViewModel
-import br.studyleague.ui.screens.StudentScreen
+import br.studyleague.ui.screens.StudentScreens
 import br.studyleague.ui.screens.StudentSpace
 import br.studyleague.ui.screens.onboarding.AddInitialSubjectsOnboardingScreen
 import br.studyleague.ui.screens.onboarding.OnboardingScreen
@@ -21,7 +21,7 @@ import br.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScree
 import br.studyleague.ui.screens.studentspace.ScheduleScreen
 import kotlinx.coroutines.runBlocking
 
-enum class Screen {
+enum class OnboardingScreens {
     ONBOARDING, PERSONAL_INFO, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
 }
 
@@ -47,42 +47,42 @@ fun StudyLeagueApp() {
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
             navController = navController,
-            startDestination = Screen.ADD_SUBJECTS.name
+            startDestination = OnboardingScreens.ONBOARDING.name
 //            startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
         ) {
-            composable(Screen.ONBOARDING.name) {
-                OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.PERSONAL_INFO.name) })
+            composable(OnboardingScreens.ONBOARDING.name) {
+                OnboardingScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.PERSONAL_INFO.name) })
             }
 
-            composable(Screen.PERSONAL_INFO.name) {
-                PersonalInfoScreen(navigateToNextScreen = { navController.navigate(Screen.ADD_SUBJECTS.name) })
+            composable(OnboardingScreens.PERSONAL_INFO.name) {
+                PersonalInfoScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.ADD_SUBJECTS.name) })
             }
 
-            composable(Screen.ADD_SUBJECTS.name) {
+            composable(OnboardingScreens.ADD_SUBJECTS.name) {
                 AddInitialSubjectsOnboardingScreen(navigateToNextScreen = {
                     navController.navigate(
-                        Screen.SCHEDULE_EXPLANATION.name
+                        OnboardingScreens.SCHEDULE_EXPLANATION.name
                     )
                 })
             }
 
-            composable(Screen.SCHEDULE_EXPLANATION.name) {
+            composable(OnboardingScreens.SCHEDULE_EXPLANATION.name) {
                 ScheduleExplanationScreen(navigateToNextScreen = {
                     navController.navigate(
-                        StudentScreen.SCHEDULE.name
+                        StudentScreens.SCHEDULE.name
                     )
                 })
             }
 
-            composable(StudentScreen.SCHEDULE.name) {
-                ScheduleScreen(onDone = { navController.navigate(Screen.GOALS_EXPLANATION.name) })
+            composable(StudentScreens.SCHEDULE.name) {
+                ScheduleScreen(onDone = { navController.navigate(OnboardingScreens.GOALS_EXPLANATION.name) })
             }
 
-            composable(Screen.GOALS_EXPLANATION.name) {
-                GoalsExplanationScreen(navigateToNextScreen = { navController.navigate(Screen.STUDENT_SPACE.name) })
+            composable(OnboardingScreens.GOALS_EXPLANATION.name) {
+                GoalsExplanationScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.STUDENT_SPACE.name) })
             }
 
-            composable(Screen.STUDENT_SPACE.name) {
+            composable(OnboardingScreens.STUDENT_SPACE.name) {
                 StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
 
                 if (!hasCompletedOnboarding) {
