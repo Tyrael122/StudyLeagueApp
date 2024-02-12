@@ -11,16 +11,17 @@ import enums.DateRangeType
 import java.time.LocalDate
 
 class StudentRepository(
-    private val remoteDataSource: RemoteDataSource
+    private val dataSource: RemoteDataSource
 ) {
-    suspend fun createStudent(student: StudentDTO): StudentDTO = remoteDataSource.postStudent(student)
-    suspend fun fetchStudent(studentId: Long): StudentDTO = remoteDataSource.fetchStudent(studentId)
-    suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO = remoteDataSource.fetchStudentStats(studentId, date)
-    suspend fun addSubjects(studentId: Long, subjects: List<SubjectDTO>) = remoteDataSource.postSubjects(studentId, subjects)
-    suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = remoteDataSource.fetchAllSubjects(studentId, date)
-    suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = remoteDataSource.fetchScheduledSubjects(studentId, date)
-    suspend fun postSubjectGoals(studentId: Long, subjectId: Long, dateRangeType: DateRangeType, goals: List<WriteGoalDTO>) = remoteDataSource.postSubjectGoals(studentId, subjectId, dateRangeType, goals)
-    suspend fun postSubjectStats(studentId: Long, subjectId: Long, stats: List<WriteStatisticDTO>) = remoteDataSource.postSubjectStats(studentId, subjectId, stats)
-    suspend fun updateSchedule(studentId: Long, schedule: ScheduleDTO) = remoteDataSource.postSchedule(studentId, schedule)
-    suspend fun fetchSchedule(studentId: Long): ScheduleDTO = remoteDataSource.fetchSchedule(studentId)
+    suspend fun createStudent(student: StudentDTO): StudentDTO = dataSource.postStudent(student)
+    suspend fun fetchStudent(studentId: Long): StudentDTO = dataSource.fetchStudent(studentId)
+    suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO = dataSource.fetchStudentStats(studentId, date)
+    suspend fun addSubjects(studentId: Long, subjects: List<SubjectDTO>) = dataSource.postSubjects(studentId, subjects)
+    suspend fun removeSubjects(studentId: Long, subjects: List<SubjectDTO>) = dataSource.deleteSubjects(studentId, subjects)
+    suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = dataSource.fetchAllSubjects(studentId, date)
+    suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> = dataSource.fetchScheduledSubjects(studentId, date)
+    suspend fun postSubjectGoals(studentId: Long, subjectId: Long, dateRangeType: DateRangeType, goals: List<WriteGoalDTO>) = dataSource.postSubjectGoals(studentId, subjectId, dateRangeType, goals)
+    suspend fun postSubjectStats(studentId: Long, subjectId: Long, stats: List<WriteStatisticDTO>) = dataSource.postSubjectStats(studentId, subjectId, stats)
+    suspend fun updateSchedule(studentId: Long, schedule: ScheduleDTO) = dataSource.postSchedule(studentId, schedule)
+    suspend fun fetchSchedule(studentId: Long): ScheduleDTO = dataSource.fetchSchedule(studentId)
 }

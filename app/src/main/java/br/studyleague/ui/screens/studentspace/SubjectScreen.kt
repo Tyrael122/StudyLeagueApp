@@ -1,5 +1,6 @@
 package br.studyleague.ui.screens.studentspace
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,10 +27,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +46,7 @@ import br.studyleague.model.Subject
 import br.studyleague.ui.components.Accordion
 import br.studyleague.ui.components.DefaultIconButtom
 import br.studyleague.ui.components.DefaultOutlinedTextField
+import br.studyleague.ui.components.DefaultTextButton
 import br.studyleague.ui.components.ProgressIndicator
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
 import kotlinx.coroutines.launch
@@ -54,7 +58,7 @@ enum class SubjectScreens(val icon: ImageVector, val label: String) {
 }
 
 @Composable
-fun SubjectScreen() {
+fun SubjectScreen(onDeleteSubject: () -> Unit) {
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
     val selectedSubject = uiState.selectedSubject
@@ -77,7 +81,9 @@ fun SubjectScreen() {
                 .padding(it)
         ) {
             composable(SubjectScreens.UPDATE.name) {
-                SubjectUpdateScreen(selectedSubject = selectedSubject)
+                SubjectUpdateScreen(
+                    selectedSubject = selectedSubject, onDeleteSubject = onDeleteSubject
+                )
             }
 
             composable(SubjectScreens.STATS.name) {
@@ -88,7 +94,7 @@ fun SubjectScreen() {
 }
 
 @Composable
-fun SubjectUpdateScreen(selectedSubject: Subject) {
+fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
     val studentViewModel = LocalStudentViewModel.current
 
     var subjectName by remember { mutableStateOf(selectedSubject.subjectDTO.name) }
@@ -112,6 +118,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(floatingActionButton = {
         DefaultIconButtom(onClick = {
@@ -122,35 +129,51 @@ fun SubjectUpdateScreen(selectedSubject: Subject) {
 
                 studentViewModel.fetchAllSubjects()
 
-                // TODO: Show a pop up warning the user that the action has been completed.
+                Toast.makeText(context, "Matéria atualizada", Toast.LENGTH_SHORT).show()
             }
         }, modifier = Modifier.padding(bottom = 15.dp, end = 15.dp)) {
             Icon(imageVector = Icons.Filled.Check, contentDescription = "Adicionar")
         }
     }) { paddingValues ->
         StudentSpaceDefaultColumn(
-            modifier = Modifier.padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            DefaultOutlinedTextField(
-                value = subjectName,
-                onValueChange = { subjectName = it },
-                placeholder = { Text("Nome") },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                DefaultOutlinedTextField(
+                    value = subjectName,
+                    onValueChange = { subjectName = it },
+                    placeholder = { Text("Nome") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Accordion(title = "Metas - Totais", body = {
+                    Accordion.TextFieldRow(items = allTimeGoals, onValueChange = { index, string ->
+                        allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
+                    })
+                })
+
+                Accordion(title = "Metas - Semanais", body = {
+                    Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
+                        if (index == 0) return@TextFieldRow
+                        weeklyGoals[index] = listOf(weeklyGoals[index][0], string)
+                    })
+                })
+            }
+
+            DefaultTextButton(
+                text = "Apagar matéria",
+                onClick = {
+                    coroutineScope.launch {
+                        studentViewModel.deleteSubjects(listOf(selectedSubject))
+
+                        onDeleteSubject()
+                    }
+                },
             )
-
-            Accordion(title = "Metas - Totais", body = {
-                Accordion.TextFieldRow(items = allTimeGoals, onValueChange = { index, string ->
-                    allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
-                })
-            })
-
-            Accordion(title = "Metas - Semanais", body = {
-                Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
-                    if (index == 0) return@TextFieldRow
-                    weeklyGoals[index] = listOf(weeklyGoals[index][0], string)
-                })
-            })
         }
     }
 }

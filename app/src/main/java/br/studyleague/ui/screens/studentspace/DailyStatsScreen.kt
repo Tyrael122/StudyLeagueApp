@@ -55,12 +55,13 @@ fun DailyStatsScreen() {
     var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
+        Log.d("DailyStatsScreen", "Fetching student stats at daily screen")
+
         studentViewModel.fetchScheduledSubjectsForDay()
         studentViewModel.fetchStudentStats()
 
         fetchState = FetchState.Loaded(Unit)
 
-        Log.d("DailyStatsScreen", "Fetching student stats at daily screen")
     }
 
     when (fetchState) {
@@ -120,6 +121,7 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
         DataGrid(isSearchBarVisible = false,
             columns = Subject.columns,
             items = uiState.subjects.getLoadedValue(),
+            transformToDataGridView = { it.toDailyStatsView() },
             noContentText = "Nenhuma matéria agendada\npara hoje",
             onItemClick = {
                 studentViewModel.selectSubject(it)

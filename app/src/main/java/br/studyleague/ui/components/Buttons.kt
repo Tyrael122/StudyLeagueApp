@@ -11,9 +11,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -26,6 +28,21 @@ fun OnboardingButton(modifier: Modifier = Modifier, onClick: () -> Unit, text: S
     ) {
         Text(
             text, fontSize = 18.sp, color = Color.White, modifier = Modifier.padding(10.dp)
+        )
+    }
+}
+
+@Composable
+fun DefaultTextButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
+    TextButton(
+        modifier = modifier,
+        onClick = onClick,
+    ) {
+        Text(
+            text,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Light,
+            color = Color.Black
         )
     }
 }

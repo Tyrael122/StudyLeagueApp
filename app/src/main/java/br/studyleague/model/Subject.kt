@@ -23,6 +23,16 @@ data class Subject(
         )
     }
 
+    fun toDailyStatsView(): DataGridRowContent {
+        return DataGridRowContent(
+            listOf(
+                this.subjectDTO.name,
+                this.subjectDTO.allTimeStatistic.hours.toString(),
+                this.subjectDTO.hoursToStudyToday.toString(),
+            )
+        )
+    }
+
     companion object {
         val columns: List<DataGridColumnProperties> = listOf(
             DataGridColumnProperties("Nome", 1F, TextAlign.Start),

@@ -9,7 +9,6 @@ import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
 object RetrofitBuilder {
-
     private const val BASE_URL = BuildConfig.API_URL
 
     private val json = Json {

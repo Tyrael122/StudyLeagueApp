@@ -57,6 +57,7 @@ fun <T : DataGridView> DataGrid(
     backgroundColor: Color = Color(0xFFEEEEEE),
     columns: List<DataGridColumnProperties>,
     items: List<T>,
+    transformToDataGridView: (T) -> DataGridRowContent = { it.toDataGridView() },
     selectedItems: List<T> = emptyList(),
     onSelectionChanged: (List<T>) -> Unit = {},
     isDatagridItemSelectable: Boolean = false,
@@ -84,14 +85,15 @@ fun <T : DataGridView> DataGrid(
             isDataGridItemSelectable = isDatagridItemSelectable,
             selectAllItems = { selectionViewModel.selectAllItems() })
 
-        LazyItemGrid(items = items.map { it.toDataGridView() },
+        LazyItemGrid(items = items.map { transformToDataGridView(it) },
             columns = columns,
             onItemClick = { onItemClick(items[it]) },
             noContentText = noContentText,
             isDataGridItemSelectable = isDatagridItemSelectable,
             onSelectItem = { selectionViewModel.toggleItemSelection(items[it]) },
             isItemSelected = { uiState.selectedItems.contains(items[it]) },
-            modifier = Modifier.weight(1F)
+            modifier = Modifier
+                .weight(1F)
                 .background(Color.White)
         )
     }
@@ -177,8 +179,7 @@ private fun LazyItemGrid(
         if (items.isEmpty()) {
             item {
                 NoContentIndicator(
-                    text = noContentText,
-                    modifier = Modifier.fillParentMaxSize()
+                    text = noContentText, modifier = Modifier.fillParentMaxSize()
                 )
             }
         }

@@ -37,10 +37,12 @@ class StudentViewModel(
 
     init {
         runBlocking {
-            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
-            if (studentId != null) {
-                fetchStudent(studentId)
-            }
+//            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
+//            if (studentId != null) {
+//                fetchStudent(studentId)
+//            }
+
+            fetchStudent(1)
         }
     }
 
@@ -65,7 +67,6 @@ class StudentViewModel(
         return true
     }
 
-
     suspend fun addSubjects(subjects: List<Subject>) {
         if (subjects.isEmpty()) {
             return
@@ -75,6 +76,17 @@ class StudentViewModel(
         val studentId = uiState.value.student.studentDTO.id
 
         studentRepository.addSubjects(studentId, subjectsDto)
+    }
+
+    suspend fun deleteSubjects(subjects: List<Subject>) {
+        if (subjects.isEmpty()) {
+            return
+        }
+
+        val subjectsDto = subjects.map { it.subjectDTO }
+        val studentId = uiState.value.student.studentDTO.id
+
+        studentRepository.removeSubjects(studentId, subjectsDto)
     }
 
     suspend fun fetchAllSubjects() {

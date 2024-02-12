@@ -47,6 +47,12 @@ class RemoteDataSource(
         }
     }
 
+    suspend fun deleteSubjects(studentId: Long, subjects: List<SubjectDTO>) {
+        return withContext(ioDispatcher) {
+            retrofitService.deleteSubjects(studentId, subjects)
+        }
+    }
+
     suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
         return withContext(ioDispatcher) {
             retrofitService.fetchAllSubjects(studentId, date)
