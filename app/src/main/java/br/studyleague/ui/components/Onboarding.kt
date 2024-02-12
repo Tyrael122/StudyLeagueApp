@@ -2,6 +2,7 @@ package br.studyleague.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -15,7 +16,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun OnboardingColumn(
-    modifier: Modifier = Modifier, content: @Composable () -> Unit
+    modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

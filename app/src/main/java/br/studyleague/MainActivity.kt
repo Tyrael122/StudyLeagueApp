@@ -26,10 +26,10 @@ class MainActivity : ComponentActivity() {
 
 //        defineUncaughtExceptionBehavior()
 
-        setContentWithComposeTimeException()
+//        setContentWithComposeTimeException()
 //        setContentWithClickableButton()
 
-//        setDefaultContent()
+        setDefaultContent()
     }
 
     private fun setContentWithComposeTimeException() {
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setDefaultContent() {
         setContent {
-            StudyLeagueTheme(darkTheme = false) {
+            StudyLeagueTheme(darkTheme = false, dynamicColor = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {

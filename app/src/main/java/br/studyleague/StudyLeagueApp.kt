@@ -13,7 +13,7 @@ import br.studyleague.data.DataStoreManager
 import br.studyleague.ui.StudentViewModel
 import br.studyleague.ui.screens.StudentScreen
 import br.studyleague.ui.screens.StudentSpace
-import br.studyleague.ui.screens.onboarding.AddInitialSubjectsOnOnboardingScreen
+import br.studyleague.ui.screens.onboarding.AddInitialSubjectsOnboardingScreen
 import br.studyleague.ui.screens.onboarding.OnboardingScreen
 import br.studyleague.ui.screens.onboarding.PersonalInfoScreen
 import br.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
@@ -47,7 +47,8 @@ fun StudyLeagueApp() {
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
             navController = navController,
-            startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
+            startDestination = Screen.ADD_SUBJECTS.name
+//            startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
         ) {
             composable(Screen.ONBOARDING.name) {
                 OnboardingScreen(navigateToNextScreen = { navController.navigate(Screen.PERSONAL_INFO.name) })
@@ -58,7 +59,7 @@ fun StudyLeagueApp() {
             }
 
             composable(Screen.ADD_SUBJECTS.name) {
-                AddInitialSubjectsOnOnboardingScreen(navigateToNextScreen = {
+                AddInitialSubjectsOnboardingScreen(navigateToNextScreen = {
                     navController.navigate(
                         Screen.SCHEDULE_EXPLANATION.name
                     )
