@@ -1,11 +1,9 @@
 package br.studyleague.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import br.studyleague.BuildConfig
 import br.studyleague.data.DataStoreKeys
 import br.studyleague.data.DataStoreManager
 import br.studyleague.data.datasources.RemoteDataSource
@@ -15,6 +13,7 @@ import br.studyleague.model.Student
 import br.studyleague.model.StudentStats
 import br.studyleague.model.Subject
 import br.studyleague.ui.components.ScheduleEntryData
+import br.studyleague.util.CustomLogger
 import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
 import dtos.student.goals.WriteGoalDTO
@@ -41,7 +40,8 @@ class StudentViewModel(
         runBlocking {
             val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
             if (studentId != null) {
-                Log.d("StudentViewModel", "Student ID found in data store: $studentId")
+                CustomLogger.d("StudentViewModel", "Student ID found in data store: $studentId")
+
                 fetchStudent(studentId)
             }
         }

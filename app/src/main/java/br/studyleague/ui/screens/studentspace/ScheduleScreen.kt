@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,6 +53,7 @@ import br.studyleague.ui.components.Schedule
 import br.studyleague.ui.components.ScheduleEntryData
 import br.studyleague.ui.components.StudentDropdownMenu
 import br.studyleague.ui.components.TimePickerDialog
+import br.studyleague.util.CustomLogger
 import dtos.SubjectDTO
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -70,7 +70,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     LaunchedEffect(Unit) {
         fetchState = FetchState.Loading
 
-        Log.d("ScheduleScreen", "Fetching schedule at launched effect")
+        CustomLogger.d("ScheduleScreen", "Fetching schedule at launched effect")
 
         studentViewModel.fetchAllSubjects()
         studentViewModel.fetchSchedule()
@@ -321,7 +321,7 @@ private fun setFullscreenMode(screenOrientation: Int) {
 
         activity.requestedOrientation = screenOrientation
 
-        Log.d("ScheduleScreen", "Setting fullscreen mode")
+        CustomLogger.d("ScheduleScreen", "Setting fullscreen mode")
 
         val window = activity.window
         WindowCompat.getInsetsController(window, window.decorView).let {
@@ -336,7 +336,7 @@ private fun setFullscreenMode(screenOrientation: Int) {
             WindowCompat.getInsetsController(window, window.decorView)
                 .show(WindowInsetsCompat.Type.systemBars())
 
-            Log.d("ScheduleScreen", "Disposing fullscreen mode")
+            CustomLogger.d("ScheduleScreen", "Disposing fullscreen mode")
         }
     }
 }

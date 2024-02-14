@@ -1,6 +1,5 @@
 package br.studyleague.ui.screens.studentspace
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -18,6 +17,7 @@ import br.studyleague.ui.FetchState
 import br.studyleague.ui.components.DefaultIconButtom
 import br.studyleague.ui.components.datagrid.DataGrid
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
+import br.studyleague.util.CustomLogger
 
 
 @Composable
@@ -26,7 +26,7 @@ fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit, navigateToAddSubjec
     val uiState by studentViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        Log.d("SubjectTableScreen", "Fetching all subjects")
+        CustomLogger.d("SubjectTableScreen", "Fetching all subjects")
 
         studentViewModel.fetchAllSubjects()
     }

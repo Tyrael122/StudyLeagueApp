@@ -1,6 +1,5 @@
 package br.studyleague.ui.screens.studentspace
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +44,7 @@ import br.studyleague.ui.Util.formatFloat
 import br.studyleague.ui.components.StatisticsSquare
 import br.studyleague.ui.components.datagrid.DataGrid
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
+import br.studyleague.util.CustomLogger
 import kotlinx.coroutines.launch
 
 
@@ -55,7 +55,7 @@ fun DailyStatsScreen() {
     var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
-        Log.d("DailyStatsScreen", "Fetching student stats at daily screen")
+        CustomLogger.d("DailyStatsScreen", "Fetching student stats at daily screen")
 
         studentViewModel.fetchScheduledSubjectsForDay()
         studentViewModel.fetchStudentStats()

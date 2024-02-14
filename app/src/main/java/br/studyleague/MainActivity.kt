@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import br.studyleague.ui.theme.StudyLeagueTheme
+import br.studyleague.util.CustomLogger
 import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private fun setContentWithClickableButton() {
         setContent {
             Button(onClick = {
-                Log.d("Firebase", "Clicked on button, now throwing exception for testing purposes")
+                CustomLogger.d("Firebase", "Clicked on button, now throwing exception for testing purposes")
                 throw IllegalArgumentException("This is a test exception")
             }) {
                 Text("Click me")
@@ -90,7 +91,7 @@ fun ErrorScreen(error: Throwable? = null) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        Log.d("ErrorScreen", "Informações técnicas: ${error?.message ?: "Erro desconhecido"}")
+        CustomLogger.d("ErrorScreen", "Informações técnicas: ${error?.message ?: "Erro desconhecido"}")
 
         Text(
             text = "Informações técnicas: ${error?.message ?: "Erro desconhecido"}",

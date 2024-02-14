@@ -1,6 +1,5 @@
 package br.studyleague.ui.screens.studentspace
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -19,6 +18,7 @@ import br.studyleague.ui.components.Accordion
 import br.studyleague.ui.components.Accordion.TextRow
 import br.studyleague.ui.components.StatisticsSquare
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
+import br.studyleague.util.CustomLogger
 
 
 @Composable
@@ -27,7 +27,7 @@ fun GlobalStatsScreen() {
     val uiState by studentViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        Log.d("GlobalStatsScreen", "Fetching student stats at global screen")
+        CustomLogger.d("GlobalStatsScreen", "Fetching student stats at global screen")
 
         studentViewModel.fetchStudentStats()
     }
