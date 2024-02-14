@@ -46,8 +46,8 @@ fun StudyLeagueApp() {
 
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
-            navController = navController, startDestination = OnboardingScreens.STUDENT_SPACE.name
-//            startDestination = if (hasCompletedOnboarding) Screen.STUDENT_SPACE.name else Screen.ONBOARDING.name
+            navController = navController,
+            startDestination = if (hasCompletedOnboarding) OnboardingScreens.STUDENT_SPACE.name else OnboardingScreens.ONBOARDING.name
         ) {
             composable(OnboardingScreens.ONBOARDING.name) {
                 OnboardingScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.PERSONAL_INFO.name) })

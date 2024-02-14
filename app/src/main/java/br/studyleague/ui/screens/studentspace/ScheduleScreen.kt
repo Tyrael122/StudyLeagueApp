@@ -70,12 +70,12 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     LaunchedEffect(Unit) {
         fetchState = FetchState.Loading
 
+        Log.d("ScheduleScreen", "Fetching schedule at launched effect")
+
         studentViewModel.fetchAllSubjects()
         studentViewModel.fetchSchedule()
 
         fetchState = FetchState.Loaded(Unit)
-
-        Log.d("ScheduleScreen", "Fetching schedule at launched effect")
     }
 
     val coroutineScope = rememberCoroutineScope()

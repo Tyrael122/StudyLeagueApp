@@ -27,8 +27,9 @@ fun GlobalStatsScreen() {
     val uiState by studentViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        studentViewModel.fetchStudentStats()
         Log.d("GlobalStatsScreen", "Fetching student stats at global screen")
+
+        studentViewModel.fetchStudentStats()
     }
 
     when (uiState.studentStats) {

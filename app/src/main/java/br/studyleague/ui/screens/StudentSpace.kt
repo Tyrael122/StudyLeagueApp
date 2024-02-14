@@ -90,8 +90,7 @@ fun StudentSpace(
             ) {
                 StudentNavGraph(
                     navController = navController,
-//                    startDestination = if (hasCompletedOnboarding) StudentScreens.GLOBAL_STATS.name else StudentScreens.SUBJECTS_TABLE.name
-                    startDestination = StudentScreens.SUBJECTS_TABLE.name
+                    startDestination = if (hasCompletedOnboarding) StudentScreens.GLOBAL_STATS.name else StudentScreens.SUBJECTS_TABLE.name
                 )
             }
         }

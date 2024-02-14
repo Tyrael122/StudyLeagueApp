@@ -26,9 +26,9 @@ fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit, navigateToAddSubjec
     val uiState by studentViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        studentViewModel.fetchAllSubjects()
-
         Log.d("SubjectTableScreen", "Fetching all subjects")
+
+        studentViewModel.fetchAllSubjects()
     }
 
     when (uiState.subjects) {
