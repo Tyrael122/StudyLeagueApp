@@ -49,6 +49,7 @@ import br.studyleague.ui.components.DefaultOutlinedTextField
 import br.studyleague.ui.components.DefaultTextButton
 import br.studyleague.ui.components.ProgressIndicator
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
+import dtos.student.goals.ReadGoalDTO
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -101,20 +102,12 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
 
     val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
     val allTimeGoals = remember {
-        mutableStateListOf(
-            listOf("Horas", allTimeGoal.hours.toString()),
-            listOf("Questões", allTimeGoal.questions.toString()),
-            listOf("Revisões", allTimeGoal.reviews.toString()),
-        )
+        generateMutableListFromGoals(allTimeGoal)
     }
 
     val weeklyGoal = selectedSubject.subjectDTO.weeklyGoals
     val weeklyGoals = remember {
-        mutableStateListOf(
-            listOf("Horas", weeklyGoal.hours.toString()),
-            listOf("Questões", weeklyGoal.questions.toString()),
-            listOf("Revisões", weeklyGoal.reviews.toString()),
-        )
+        generateMutableListFromGoals(weeklyGoal)
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -125,7 +118,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
             coroutineScope.launch {
                 studentViewModel.updateSelectedSubjectName(subjectName)
                 studentViewModel.updateSelectedSubjectAlltimeGoals(allTimeGoals.map { it[1].toFloat() })
-                studentViewModel.updateSelectedSubjectWeeklyGoals(allTimeGoals.map { it[1].toFloat() })
+                studentViewModel.updateSelectedSubjectWeeklyGoals(weeklyGoals.map { it[1].toFloat() })
 
                 studentViewModel.fetchAllSubjects()
 
@@ -145,6 +138,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
             ) {
                 DefaultOutlinedTextField(
                     value = subjectName,
+                    readOnly = true,
                     onValueChange = { subjectName = it },
                     placeholder = { Text("Nome") },
                     modifier = Modifier.fillMaxWidth()
@@ -177,6 +171,12 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
         }
     }
 }
+
+private fun generateMutableListFromGoals(goalDTO: ReadGoalDTO) = mutableStateListOf(
+    listOf("Horas", goalDTO.hours.toString()),
+    listOf("Questões", goalDTO.questions.toString()),
+    listOf("Revisões", goalDTO.reviews.toString()),
+)
 
 @Composable
 fun SubjectStatsScreen(selectedSubject: Subject) {
