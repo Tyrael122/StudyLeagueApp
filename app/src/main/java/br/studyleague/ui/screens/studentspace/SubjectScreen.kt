@@ -49,7 +49,6 @@ import br.studyleague.ui.components.DefaultOutlinedTextField
 import br.studyleague.ui.components.DefaultTextButton
 import br.studyleague.ui.components.ProgressIndicator
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
-import dtos.student.goals.ReadGoalDTO
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -102,12 +101,18 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
 
     val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
     val allTimeGoals = remember {
-        generateMutableListFromGoals(allTimeGoal)
+        mutableStateListOf(
+            listOf("Total de questões", allTimeGoal.questions.toString()),
+        )
     }
 
     val weeklyGoal = selectedSubject.subjectDTO.weeklyGoals
     val weeklyGoals = remember {
-        generateMutableListFromGoals(weeklyGoal)
+        mutableStateListOf(
+            listOf("Horas", weeklyGoal.hours.toString()),
+            listOf("Questões", weeklyGoal.questions.toString()),
+            listOf("Revisões", weeklyGoal.reviews.toString()),
+        )
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -144,13 +149,13 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Accordion(title = "Metas - Totais", body = {
+                Accordion(title = "Adicione suas metas totais", body = {
                     Accordion.TextFieldRow(items = allTimeGoals, onValueChange = { index, string ->
                         allTimeGoals[index] = listOf(allTimeGoals[index][0], string)
                     })
                 })
 
-                Accordion(title = "Metas - Semanais", body = {
+                Accordion(title = "Adicione suas metas semanais", body = {
                     Accordion.TextFieldRow(items = weeklyGoals, onValueChange = { index, string ->
                         if (index == 0) return@TextFieldRow
                         weeklyGoals[index] = listOf(weeklyGoals[index][0], string)
@@ -171,12 +176,6 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
         }
     }
 }
-
-private fun generateMutableListFromGoals(goalDTO: ReadGoalDTO) = mutableStateListOf(
-    listOf("Horas", goalDTO.hours.toString()),
-    listOf("Questões", goalDTO.questions.toString()),
-    listOf("Revisões", goalDTO.reviews.toString()),
-)
 
 @Composable
 fun SubjectStatsScreen(selectedSubject: Subject) {

@@ -225,7 +225,7 @@ class StudentViewModel(
 
         val allTimeGoals = mutableListOf<WriteGoalDTO>()
         for (index in goals.indices) {
-            val statisticType = convertToStatisticType(index)
+            val statisticType = convertToStatisticType(index, dateRangeType)
             if (statisticType == StatisticType.HOURS) continue
 
             allTimeGoals.add(WriteGoalDTO(statisticType, goals[index]))
@@ -255,7 +255,14 @@ class StudentViewModel(
         }
     }
 
-    private fun convertToStatisticType(index: Int): StatisticType {
+    private fun convertToStatisticType(index: Int, dateRangeType: DateRangeType = DateRangeType.WEEKLY): StatisticType {
+        if (dateRangeType == DateRangeType.ALL_TIME) {
+            return when (index) {
+                0 -> StatisticType.QUESTIONS
+                else -> throw IllegalArgumentException("Invalid index.")
+            }
+        }
+
         return when (index) {
             0 -> StatisticType.HOURS
             1 -> StatisticType.QUESTIONS
