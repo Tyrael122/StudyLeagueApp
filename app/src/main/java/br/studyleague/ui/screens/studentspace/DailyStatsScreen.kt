@@ -61,7 +61,6 @@ fun DailyStatsScreen() {
         studentViewModel.fetchStudentStats()
 
         fetchState = FetchState.Loaded(Unit)
-
     }
 
     when (fetchState) {

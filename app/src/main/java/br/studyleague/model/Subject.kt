@@ -27,7 +27,7 @@ data class Subject(
         return DataGridRowContent(
             listOf(
                 this.subjectDTO.name,
-                this.subjectDTO.allTimeStatistic.hours.toString(),
+                this.subjectDTO.dailyStatistic.hours.toString(),
                 this.subjectDTO.hoursToStudyToday.toString(),
             )
         )

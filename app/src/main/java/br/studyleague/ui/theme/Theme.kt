@@ -87,6 +87,7 @@ fun StudyLeagueTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true, content: @Composable () -> Unit
 ) {
+//    val colorScheme = LightColors
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -96,6 +97,7 @@ fun StudyLeagueTheme(
         darkTheme -> DarkColors
         else -> LightColors
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
