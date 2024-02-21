@@ -1,5 +1,6 @@
 package br.studyleague.ui.screens.onboarding
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.studyleague.LocalStudentViewModel
@@ -78,17 +80,25 @@ fun PersonalInfoScreen(navigateToNextScreen: () -> Unit) {
 
         val studentViewModel = LocalStudentViewModel.current
         val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         OnboardingButton(onClick = {
             val name = data[0][2]
             val goal = data[1][2]
             val studyArea = data[2][2]
 
+            if (name.isEmpty() || goal.isEmpty() || studyArea.isEmpty()) {
+                Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
+
+                return@OnboardingButton
+            }
+
             coroutineScope.launch {
-                val isCreationSucessful = studentViewModel.createStudent(name, goal, studyArea)
-                if (isCreationSucessful) {
-                    navigateToNextScreen()
-                }
+                Toast.makeText(context, "Salvando informações. Aguarde...", Toast.LENGTH_SHORT).show()
+
+                studentViewModel.createStudent(name, goal, studyArea)
+
+                navigateToNextScreen()
             }
         }, text = "CONTINUAR")
     }

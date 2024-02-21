@@ -1,5 +1,6 @@
 package br.studyleague.ui.screens.onboarding
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,8 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.studyleague.LocalStudentViewModel
 import br.studyleague.model.Subject
 import br.studyleague.ui.components.DefaultOutlinedTextField
@@ -50,6 +55,12 @@ fun AddInitialSubjectsOnboardingScreen(navigateToNextScreen: () -> Unit) {
                 .weight(1F)
                 .verticalScroll(rememberScrollState())
         ) {
+            Text(
+                "Adicione as matérias apertando 'Enter' no teclado.",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+            )
+
             val placeholder = @Composable {
                 Text("Escreva aqui sua matéria")
             }
@@ -80,7 +91,15 @@ fun AddInitialSubjectsOnboardingScreen(navigateToNextScreen: () -> Unit) {
 
         val studentViewModel = LocalStudentViewModel.current
         val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
+
         OnboardingButton(onClick = {
+            if (subjects.isEmpty()) {
+                Toast.makeText(context, "Adicione pelo menos uma matéria", Toast.LENGTH_SHORT).show()
+
+                return@OnboardingButton
+            }
+
             coroutineScope.launch {
                 studentViewModel.addSubjects(subjects = subjects.map {
                     val subjectDto = SubjectDTO()
@@ -93,4 +112,10 @@ fun AddInitialSubjectsOnboardingScreen(navigateToNextScreen: () -> Unit) {
             }
         }, text = "CONTINUAR")
     }
+}
+
+@Preview
+@Composable
+fun AddInitialSubjectsOnboardingScreenPreview() {
+    AddInitialSubjectsOnboardingScreen(navigateToNextScreen = {})
 }

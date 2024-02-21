@@ -45,6 +45,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import br.studyleague.LocalStudentViewModel
 import br.studyleague.model.Subject
 import br.studyleague.ui.FetchState
+import br.studyleague.ui.Util
 import br.studyleague.ui.components.DefaultDialog
 import br.studyleague.ui.components.DefaultIconButtom
 import br.studyleague.ui.components.NumberButton
@@ -142,10 +143,8 @@ fun ScheduleScreenContent(
             scheduleEntries = scheduleEntries,
             onGridClick = { dayOfWeek, hour ->
 
-                loadedScheduleEntryData = loadedScheduleEntryData.copy(
-                    startTime = LocalTime.of(hour.toInt(), 0),
-                    endTime = LocalTime.of(hour.toInt() + 1, 0),
-                    dayOfWeek = dayOfWeek
+                loadedScheduleEntryData = generateScheduleEntryData(
+                    scheduleEntries, loadedScheduleEntryData, hour, dayOfWeek
                 )
 
                 isDialogVisible = true
@@ -190,6 +189,36 @@ fun ScheduleScreenContent(
                 })
         }
     }
+}
+
+private fun generateScheduleEntryData(
+    scheduleEntries: List<ScheduleEntryData>,
+    loadedScheduleEntryData: ScheduleEntryData,
+    hour: Float,
+    dayOfWeek: DayOfWeek
+): ScheduleEntryData {
+    val defaultReturnValue = loadedScheduleEntryData.copy(
+        startTime = LocalTime.of(hour.toInt(), 0),
+        endTime = LocalTime.of(hour.toInt() + 1, 0),
+        dayOfWeek = dayOfWeek
+    )
+
+    if (dayOfWeek == DayOfWeek.MONDAY) {
+        return defaultReturnValue
+    }
+
+    val filteredScheduleEntries = scheduleEntries.filter { it.dayOfWeek == dayOfWeek.minus(1) }
+
+    val convertedHour = Util.convertHourFloatToLocalTime(hour)
+    val matchedPreviousDayEntries =
+        filteredScheduleEntries.firstOrNull { it.startTime.isBefore(convertedHour) && it.endTime.isAfter(convertedHour) }
+            ?: return defaultReturnValue
+
+    return loadedScheduleEntryData.copy(
+        startTime = matchedPreviousDayEntries.startTime,
+        endTime = matchedPreviousDayEntries.endTime,
+        dayOfWeek = dayOfWeek
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

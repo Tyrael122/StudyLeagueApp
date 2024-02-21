@@ -47,11 +47,7 @@ class StudentViewModel(
         }
     }
 
-    suspend fun createStudent(name: String, goal: String, studyArea: String): Boolean {
-        if (name.isEmpty() || goal.isEmpty() || studyArea.isEmpty()) {
-            return false // TODO: Put this validation in the API as well.
-        }
-
+    suspend fun createStudent(name: String, goal: String, studyArea: String) {
         var studentDTO = StudentDTO()
         studentDTO.name = name
         studentDTO.goal = goal
@@ -64,8 +60,6 @@ class StudentViewModel(
         _uiState.update {
             it.copy(student = Student(studentDTO = studentDTO))
         }
-
-        return true
     }
 
     suspend fun addSubjects(subjects: List<Subject>) {
