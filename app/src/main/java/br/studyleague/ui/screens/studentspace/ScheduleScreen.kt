@@ -53,7 +53,7 @@ import br.studyleague.ui.components.NumberText
 import br.studyleague.ui.components.Schedule
 import br.studyleague.ui.components.ScheduleEntryData
 import br.studyleague.ui.components.StudentDropdownMenu
-import br.studyleague.ui.components.TimePickerDialog
+import br.studyleague.ui.components.ViewTimePickerDialog
 import br.studyleague.util.CustomLogger
 import dtos.SubjectDTO
 import kotlinx.coroutines.launch
@@ -104,7 +104,7 @@ fun ScheduleScreenContent(
     subjects: List<Subject>,
     initialScheduleEntriesGenerator: ((ScheduleEntryData) -> Unit) -> List<ScheduleEntryData>
 ) {
-    setFullscreenMode(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    setFullscreenModeAndLandscapeMode()
 
     var isDialogVisible by remember { mutableStateOf(false) }
 
@@ -221,7 +221,6 @@ private fun generateScheduleEntryData(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleEntryInfoDialog(
     initialScheduleEntry: ScheduleEntryData,
@@ -330,19 +329,26 @@ fun ScheduleEntryInfoDialog(
         }
 
         if (isTimePickerVisible) {
-            TimePickerDialog(initialTime = timePickerTime,
-                onDismissRequest = { isTimePickerVisible = false },
-                onDone = {
-                    timePickerCallback(it)
-                    isTimePickerVisible = false
-                })
+            ViewTimePickerDialog(initialTime = timePickerTime, onDone = {
+                timePickerCallback(it)
+                isTimePickerVisible = false
+            })
+
+//            CustomTimePickerDialog(initialTime = timePickerTime,
+//                onDismissRequest = { isTimePickerVisible = false },
+//                onDone = {
+//                    timePickerCallback(it)
+//                    isTimePickerVisible = false
+//                })
         }
     }
 }
 
 @Composable
-private fun setFullscreenMode(screenOrientation: Int) {
+private fun setFullscreenModeAndLandscapeMode() {
     val context = LocalContext.current
+
+    val screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
     DisposableEffect(screenOrientation) {
         val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
@@ -378,7 +384,9 @@ fun Context.findActivity(): Activity? = when (this) {
 
 @Preview
 @Composable
-fun ScheduleScreenPreview() {
+fun ScheduleEntryInfoDialogPreview() {
+    setFullscreenModeAndLandscapeMode()
+
     ScheduleEntryInfoDialog(initialScheduleEntry = ScheduleEntryData(
         startTime = LocalTime.of(8, 0),
         endTime = LocalTime.of(9, 0),
