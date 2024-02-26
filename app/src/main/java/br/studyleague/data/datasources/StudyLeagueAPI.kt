@@ -16,6 +16,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import util.EndpointPrefixes
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface StudyLeagueAPI {
     @POST(EndpointPrefixes.STUDENT)
@@ -50,4 +51,7 @@ interface StudyLeagueAPI {
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SCHEDULE)
     suspend fun fetchSchedule(@Path("studentId") studentId: Long): ScheduleDTO
+
+    @GET(EndpointPrefixes.CURRENT_TIME)
+    suspend fun fetchCurrentServerTime(): LocalDateTime
 }

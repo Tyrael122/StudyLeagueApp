@@ -41,6 +41,8 @@ import br.studyleague.ui.screens.studentspace.ScheduleScreen
 import br.studyleague.ui.screens.studentspace.SubjectScreen
 import br.studyleague.ui.screens.studentspace.SubjectTableScreen
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
 
 
 @Composable
@@ -192,12 +194,16 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
         }
 
         StudentScreens.DAILY_STATS.name -> {
-            val currentDayOfWeek = uiState.currentDate.dayOfWeek
-            val newTitle = currentDayOfWeek.getDisplayName(
-                java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0]
-            ).replaceFirstChar { it.uppercase() }
+            val currentConfiguration = LocalConfiguration.current
 
-            TopBarTitleHelper.buildTextComposable(newTitle)
+            runBlocking {
+                val currentDayOfWeek = studentViewModel.fetchServerCurrentTime().dayOfWeek
+                val newTitle = currentDayOfWeek.getDisplayName(
+                    java.time.format.TextStyle.FULL, currentConfiguration.locales[0]
+                ).replaceFirstChar { it.uppercase() }
+
+                TopBarTitleHelper.buildTextComposable(newTitle)
+            }
         }
 
         else -> {

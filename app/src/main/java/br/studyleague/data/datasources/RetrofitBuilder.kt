@@ -3,9 +3,12 @@ package br.studyleague.data.datasources
 import br.studyleague.BuildConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import util.serializers.LocalDateTimeSerializer
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 object RetrofitBuilder {
@@ -14,6 +17,9 @@ object RetrofitBuilder {
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
+        serializersModule = SerializersModule {
+            contextual(LocalDateTime::class, LocalDateTimeSerializer())
+        }
     }
 
     private const val defaultTimeout = 60L

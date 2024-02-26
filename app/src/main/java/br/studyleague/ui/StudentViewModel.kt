@@ -26,6 +26,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class StudentViewModel(
     private val dataStoreManager: DataStoreManager
@@ -35,6 +38,8 @@ class StudentViewModel(
     val uiState = _uiState.asStateFlow()
 
     private val studentRepository = StudentRepository(RemoteDataSource())
+
+    private var _timeDifferenceBetweenLocalAndServer: LocalDateTime? = null
 
     init {
         runBlocking {
@@ -86,7 +91,7 @@ class StudentViewModel(
 
     suspend fun fetchAllSubjects() {
         val studentId = uiState.value.student.studentDTO.id
-        val currentDate = uiState.value.currentDate
+        val currentDate = LocalDate.now()
 
         val selectedSubjectId = uiState.value.selectedSubject.subjectDTO.id
 
@@ -155,7 +160,7 @@ class StudentViewModel(
 
     suspend fun fetchStudentStats() {
         val studentStatsDTO = studentRepository.fetchStudentStats(
-            uiState.value.student.studentDTO.id, uiState.value.currentDate
+            uiState.value.student.studentDTO.id, LocalDate.now()
         )
         _uiState.update {
             it.copy(studentStats = FetchState.Loaded(StudentStats(studentStatisticsDTO = studentStatsDTO)))
@@ -166,7 +171,7 @@ class StudentViewModel(
         val studentId = uiState.value.student.studentDTO.id
 
         val scheduledSubjects =
-            studentRepository.fetchScheduledSubjects(studentId, uiState.value.currentDate)
+            studentRepository.fetchScheduledSubjects(studentId, LocalDate.now())
         val subjects = scheduledSubjects.map { Subject(subjectDTO = it) }
 
         _uiState.update {
@@ -213,6 +218,23 @@ class StudentViewModel(
         updateSubjectGoals(goals, DateRangeType.WEEKLY)
     }
 
+    fun selectSubject(subject: Subject) {
+        _uiState.update {
+            it.copy(selectedSubject = subject)
+        }
+    }
+
+    suspend fun fetchServerCurrentTime(): LocalDateTime {
+        if (_timeDifferenceBetweenLocalAndServer == null) {
+            val serverTime = studentRepository.fetchCurrentServerTime()
+            val localTime = LocalDateTime.now()
+
+            _timeDifferenceBetweenLocalAndServer = serverTime.minusNanos(localTime.nano.toLong())
+        }
+
+        return LocalDateTime.now().plusNanos(_timeDifferenceBetweenLocalAndServer!!.nano.toLong())
+    }
+
     private suspend fun updateSubjectGoals(goals: List<Float>, dateRangeType: DateRangeType) {
         val studentId = uiState.value.student.studentDTO.id
         val subjectId = uiState.value.selectedSubject.subjectDTO.id
@@ -228,12 +250,6 @@ class StudentViewModel(
         studentRepository.postSubjectGoals(
             studentId, subjectId, dateRangeType, allTimeGoals
         )
-    }
-
-    fun selectSubject(subject: Subject) {
-        _uiState.update {
-            it.copy(selectedSubject = subject)
-        }
     }
 
     private fun findSubjectById(subjectId: Long): Subject {
@@ -282,7 +298,6 @@ data class StudentUiState(
     val selectedSubject: Subject = Subject(),
     val student: Student = Student(),
     val studentStats: FetchState<StudentStats> = FetchState.Empty,
-    val currentDate: LocalDate = LocalDate.now()
 )
 
 // Out makes this accept subtypes of T,

@@ -127,7 +127,7 @@ object Accordion {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(strings[0], style = textStyle)
+                    Text(strings[0], style = textStyle, modifier = Modifier.weight(1F))
 
                     BasicTextField(
                         value = strings[1],
@@ -146,8 +146,7 @@ object Accordion {
     @Composable
     fun HorizontalDivider(modifier: Modifier = Modifier) {
         HorizontalDivider(
-            modifier = modifier.fillMaxWidth(),
-            color = Color(0x40000000)
+            modifier = modifier.fillMaxWidth(), color = Color(0x40000000)
         )
     }
 }

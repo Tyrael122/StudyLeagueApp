@@ -9,6 +9,7 @@ import dtos.student.goals.WriteGoalDTO
 import dtos.student.schedule.ScheduleDTO
 import enums.DateRangeType
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class StudentRepository(
     private val dataSource: RemoteDataSource
@@ -24,4 +25,5 @@ class StudentRepository(
     suspend fun postSubjectStats(studentId: Long, subjectId: Long, stats: List<WriteStatisticDTO>) = dataSource.postSubjectStats(studentId, subjectId, stats)
     suspend fun updateSchedule(studentId: Long, schedule: ScheduleDTO) = dataSource.postSchedule(studentId, schedule)
     suspend fun fetchSchedule(studentId: Long): ScheduleDTO = dataSource.fetchSchedule(studentId)
+    suspend fun fetchCurrentServerTime(): LocalDateTime = dataSource.fetchCurrentServerTime()
 }

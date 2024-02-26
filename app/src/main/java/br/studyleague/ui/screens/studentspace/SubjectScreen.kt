@@ -102,7 +102,7 @@ fun SubjectUpdateScreen(selectedSubject: Subject, onDeleteSubject: () -> Unit) {
     val allTimeGoal = selectedSubject.subjectDTO.allTimeGoals
     val allTimeGoals = remember {
         mutableStateListOf(
-            listOf("Total de questões", allTimeGoal.questions.toString()),
+            listOf("Meta de questões para fechar a matéria", allTimeGoal.questions.toString()),
         )
     }
 

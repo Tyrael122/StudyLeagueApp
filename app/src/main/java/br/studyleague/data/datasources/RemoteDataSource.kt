@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 private val retrofit = RetrofitBuilder.buildRetrofit()
@@ -91,6 +92,12 @@ class RemoteDataSource(
     suspend fun fetchSchedule(studentId: Long): ScheduleDTO {
         return withContext(ioDispatcher) {
             retrofitService.fetchSchedule(studentId)
+        }
+    }
+
+    suspend fun fetchCurrentServerTime(): LocalDateTime {
+        return withContext(ioDispatcher) {
+            retrofitService.fetchCurrentServerTime()
         }
     }
 }

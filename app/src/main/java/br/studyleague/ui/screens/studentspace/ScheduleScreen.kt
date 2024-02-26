@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -333,13 +332,6 @@ fun ScheduleEntryInfoDialog(
                 timePickerCallback(it)
                 isTimePickerVisible = false
             })
-
-//            CustomTimePickerDialog(initialTime = timePickerTime,
-//                onDismissRequest = { isTimePickerVisible = false },
-//                onDone = {
-//                    timePickerCallback(it)
-//                    isTimePickerVisible = false
-//                })
         }
     }
 }
