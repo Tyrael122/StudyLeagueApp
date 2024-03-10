@@ -1,4 +1,4 @@
-package br.studyleague.data.datasources
+package br.studyleague.data.repositories
 
 import br.studyleague.BuildConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory

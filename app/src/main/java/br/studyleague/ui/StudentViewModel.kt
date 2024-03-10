@@ -6,7 +6,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import br.studyleague.data.DataStoreKeys
 import br.studyleague.data.DataStoreManager
-import br.studyleague.data.datasources.RemoteDataSource
 import br.studyleague.data.repositories.StudentRepository
 import br.studyleague.model.Schedule
 import br.studyleague.model.Student
@@ -27,8 +26,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 class StudentViewModel(
     private val dataStoreManager: DataStoreManager
@@ -37,7 +34,7 @@ class StudentViewModel(
     private val _uiState = MutableStateFlow(StudentUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val studentRepository = StudentRepository(RemoteDataSource())
+    private val studentRepository = StudentRepository()
 
     private var _timeDifferenceBetweenLocalAndServer: LocalDateTime? = null
 
@@ -58,7 +55,7 @@ class StudentViewModel(
         studentDTO.goal = goal
         studentDTO.studyArea = studyArea
 
-        studentDTO = studentRepository.createStudent(studentDTO)
+        studentDTO = studentRepository.postStudent(studentDTO)
 
         dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
 
@@ -75,7 +72,7 @@ class StudentViewModel(
         val subjectsDto = subjects.map { it.subjectDTO }
         val studentId = uiState.value.student.studentDTO.id
 
-        studentRepository.addSubjects(studentId, subjectsDto)
+        studentRepository.postSubjects(studentId, subjectsDto)
     }
 
     suspend fun deleteSubjects(subjects: List<Subject>) {
@@ -86,7 +83,7 @@ class StudentViewModel(
         val subjectsDto = subjects.map { it.subjectDTO }
         val studentId = uiState.value.student.studentDTO.id
 
-        studentRepository.removeSubjects(studentId, subjectsDto)
+        studentRepository.deleteSubjects(studentId, subjectsDto)
     }
 
     suspend fun fetchAllSubjects() {
@@ -121,7 +118,7 @@ class StudentViewModel(
 
         val scheduleDto = ScheduleDTO(studyDaysDto)
 
-        studentRepository.updateSchedule(uiState.value.student.studentDTO.id, scheduleDto)
+        studentRepository.postSchedule(uiState.value.student.studentDTO.id, scheduleDto)
     }
 
     suspend fun fetchSchedule() {
@@ -170,8 +167,7 @@ class StudentViewModel(
     suspend fun fetchScheduledSubjectsForDay() {
         val studentId = uiState.value.student.studentDTO.id
 
-        val scheduledSubjects =
-            studentRepository.fetchScheduledSubjects(studentId, LocalDate.now())
+        val scheduledSubjects = studentRepository.fetchScheduledSubjects(studentId, LocalDate.now())
         val subjects = scheduledSubjects.map { Subject(subjectDTO = it) }
 
         _uiState.update {
@@ -265,7 +261,9 @@ class StudentViewModel(
         }
     }
 
-    private fun convertToStatisticType(index: Int, dateRangeType: DateRangeType = DateRangeType.WEEKLY): StatisticType {
+    private fun convertToStatisticType(
+        index: Int, dateRangeType: DateRangeType = DateRangeType.WEEKLY
+    ): StatisticType {
         if (dateRangeType == DateRangeType.ALL_TIME) {
             return when (index) {
                 0 -> StatisticType.QUESTIONS

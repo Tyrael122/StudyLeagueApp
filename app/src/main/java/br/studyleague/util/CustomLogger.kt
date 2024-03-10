@@ -10,4 +10,10 @@ object CustomLogger {
 
         Firebase.crashlytics.log(message)
     }
+
+    fun e(tag: String, message: String, throwable: Throwable) {
+        Log.e(tag, message, throwable)
+
+        Firebase.crashlytics.recordException(throwable)
+    }
 }

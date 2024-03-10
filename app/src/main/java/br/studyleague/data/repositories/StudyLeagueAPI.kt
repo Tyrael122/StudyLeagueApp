@@ -1,4 +1,4 @@
-package br.studyleague.data.datasources
+package br.studyleague.data.repositories
 
 import dtos.SubjectDTO
 import dtos.statistic.WriteStatisticDTO
