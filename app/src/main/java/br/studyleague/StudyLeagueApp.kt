@@ -15,14 +15,16 @@ import br.studyleague.ui.screens.StudentScreens
 import br.studyleague.ui.screens.StudentSpace
 import br.studyleague.ui.screens.onboarding.AddInitialSubjectsOnboardingScreen
 import br.studyleague.ui.screens.onboarding.OnboardingScreen
-import br.studyleague.ui.screens.onboarding.PersonalInfoScreen
+import br.studyleague.ui.screens.onboarding.signin.PersonalInfoScreen
 import br.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import br.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
+import br.studyleague.ui.screens.onboarding.signin.LoginScreen
+import br.studyleague.ui.screens.onboarding.signin.SignUpScreen
 import br.studyleague.ui.screens.studentspace.ScheduleScreen
 import kotlinx.coroutines.runBlocking
 
 enum class OnboardingScreens {
-    ONBOARDING, PERSONAL_INFO, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE
+    ONBOARDING, FILL_PERSONAL_INFO, ADD_SUBJECTS, SCHEDULE_EXPLANATION, GOALS_EXPLANATION, STUDENT_SPACE, LOGIN, SIGN_UP
 }
 
 val LocalStudentViewModel =
@@ -38,7 +40,7 @@ fun StudyLeagueApp() {
     val studentViewModel: StudentViewModel =
         viewModel(factory = StudentViewModel.factory(dataStoreManager))
 
-    val hasCompletedOnboarding = runBlocking {
+    var hasCompletedOnboarding = runBlocking {
         dataStoreManager.getValueFromDataStore(
             DataStoreKeys.hasCompletedOnboardingKey
         ) ?: false
@@ -50,11 +52,27 @@ fun StudyLeagueApp() {
             startDestination = if (hasCompletedOnboarding) OnboardingScreens.STUDENT_SPACE.name else OnboardingScreens.ONBOARDING.name
         ) {
             composable(OnboardingScreens.ONBOARDING.name) {
-                OnboardingScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.PERSONAL_INFO.name) })
+                OnboardingScreen(navigateToLoginScreen = { navController.navigate(OnboardingScreens.LOGIN.name) },
+                    navigateToSignUpScreen = { navController.navigate(OnboardingScreens.FILL_PERSONAL_INFO.name) })
             }
 
-            composable(OnboardingScreens.PERSONAL_INFO.name) {
-                PersonalInfoScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.ADD_SUBJECTS.name) })
+            composable(OnboardingScreens.FILL_PERSONAL_INFO.name) {
+                PersonalInfoScreen(navigateToNextScreen = { navController.navigate(OnboardingScreens.SIGN_UP.name) })
+            }
+
+            composable(OnboardingScreens.LOGIN.name) {
+                LoginScreen {
+                    navController.navigate(OnboardingScreens.STUDENT_SPACE.name)
+
+                    if (!hasCompletedOnboarding) {
+                        setOnboardingAsComplete(dataStoreManager)
+                        hasCompletedOnboarding = true
+                    }
+                }
+            }
+
+            composable(OnboardingScreens.SIGN_UP.name) {
+                SignUpScreen { navController.navigate(OnboardingScreens.ADD_SUBJECTS.name) }
             }
 
             composable(OnboardingScreens.ADD_SUBJECTS.name) {
@@ -89,13 +107,18 @@ fun StudyLeagueApp() {
                 StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
 
                 if (!hasCompletedOnboarding) {
-                    runBlocking {
-                        dataStoreManager.setDataStoreValue(
-                            DataStoreKeys.hasCompletedOnboardingKey, true
-                        )
-                    }
+                    setOnboardingAsComplete(dataStoreManager)
+                    hasCompletedOnboarding = true
                 }
             }
         }
+    }
+}
+
+private fun setOnboardingAsComplete(dataStoreManager: DataStoreManager) {
+    runBlocking {
+        dataStoreManager.setDataStoreValue(
+            DataStoreKeys.hasCompletedOnboardingKey, true
+        )
     }
 }

@@ -1,6 +1,8 @@
 package br.studyleague.data.repositories
 
 import dtos.SubjectDTO
+import dtos.signin.CredentialDTO
+import dtos.signin.SignUpStudentData
 import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
 import dtos.student.StudentStatisticsDTO
@@ -19,8 +21,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface StudyLeagueAPI {
+    @POST(EndpointPrefixes.LOGIN)
+    suspend fun login(@Body student: CredentialDTO): Response<StudentDTO>
+
     @POST(EndpointPrefixes.STUDENT)
-    suspend fun postStudent(@Body student: StudentDTO): StudentDTO
+    suspend fun postStudent(@Body student: SignUpStudentData): Response<StudentDTO>
 
     @GET(EndpointPrefixes.STUDENT_ID)
     suspend fun fetchStudent(@Path("studentId") studentId: Long): StudentDTO

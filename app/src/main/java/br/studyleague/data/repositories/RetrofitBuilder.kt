@@ -14,14 +14,6 @@ import java.util.concurrent.TimeUnit
 object RetrofitBuilder {
     private const val BASE_URL = BuildConfig.API_URL
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        coerceInputValues = true
-        serializersModule = SerializersModule {
-            contextual(LocalDateTime::class, LocalDateTimeSerializer())
-        }
-    }
-
     private const val defaultTimeout = 60L
 
     private var client =
@@ -31,7 +23,15 @@ object RetrofitBuilder {
 
     fun buildRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(jsonSerializer.asConverterFactory("application/json".toMediaType()))
             .baseUrl(BASE_URL).client(client).build()
+    }
+}
+
+val jsonSerializer = Json {
+    ignoreUnknownKeys = true
+    coerceInputValues = true
+    serializersModule = SerializersModule {
+        contextual(LocalDateTime::class, LocalDateTimeSerializer())
     }
 }

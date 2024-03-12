@@ -1,6 +1,9 @@
 package br.studyleague.data.repositories
 
+import br.studyleague.util.CustomLogger
 import dtos.SubjectDTO
+import dtos.signin.CredentialDTO
+import dtos.signin.SignUpStudentData
 import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
 import dtos.student.StudentStatisticsDTO
@@ -10,6 +13,9 @@ import enums.DateRangeType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.jsonObject
+import okhttp3.ResponseBody
+import retrofit2.Response
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -22,9 +28,15 @@ class StudentRepository(
         retrofit.create(StudyLeagueAPI::class.java)
     }
 
-    suspend fun postStudent(student: StudentDTO): StudentDTO {
+    suspend fun login(credential: CredentialDTO): StudentDTO {
         return withContext(ioDispatcher) {
-            retrofitService.postStudent(student)
+            parseEntityInBodyOrThrow(retrofitService.login(credential))
+        }
+    }
+
+    suspend fun postStudent(signUpStudent: SignUpStudentData): StudentDTO {
+        return withContext(ioDispatcher) {
+            parseEntityInBodyOrThrow(retrofitService.postStudent(signUpStudent))
         }
     }
 
@@ -94,5 +106,24 @@ class StudentRepository(
         return withContext(ioDispatcher) {
             retrofitService.fetchCurrentServerTime()
         }
+    }
+
+    private fun <T> parseEntityInBodyOrThrow(response: Response<T>): T {
+        if (!response.isSuccessful)
+            throw Exception(parseErrorBodyDetailMessage(response.errorBody()))
+
+        if (response.body() == null)
+            throw Exception("Erro desconhecido")
+
+        return response.body()!!
+    }
+
+    private fun parseErrorBodyDetailMessage(responseBody: ResponseBody?): String {
+        if (responseBody == null) {
+            return "Erro desconhecido"
+        }
+
+        val errorBody = responseBody.string()
+        return jsonSerializer.parseToJsonElement(errorBody).jsonObject["message"].toString()
     }
 }

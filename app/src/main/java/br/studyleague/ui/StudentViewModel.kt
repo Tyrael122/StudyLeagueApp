@@ -13,6 +13,8 @@ import br.studyleague.model.StudentStats
 import br.studyleague.model.Subject
 import br.studyleague.ui.components.ScheduleEntryData
 import br.studyleague.util.CustomLogger
+import dtos.signin.CredentialDTO
+import dtos.signin.SignUpStudentData
 import dtos.statistic.WriteStatisticDTO
 import dtos.student.StudentDTO
 import dtos.student.goals.WriteGoalDTO
@@ -49,15 +51,43 @@ class StudentViewModel(
         }
     }
 
-    suspend fun createStudent(name: String, goal: String, studyArea: String) {
-        var studentDTO = StudentDTO()
+    fun addStudyInfoToStudent(name: String, goal: String, studyArea: String) {
+        val studentDTO = StudentDTO()
         studentDTO.name = name
         studentDTO.goal = goal
         studentDTO.studyArea = studyArea
 
-        studentDTO = studentRepository.postStudent(studentDTO)
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
+        }
+    }
 
-        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+    suspend fun createStudent(email: String, password: String) {
+        val studentDTO = _uiState.value.student.studentDTO
+
+        val credentialDTO = CredentialDTO()
+        credentialDTO.email = email
+        credentialDTO.password = password
+
+        val signUpStudent = SignUpStudentData()
+        signUpStudent.student = studentDTO
+        signUpStudent.credential = credentialDTO
+
+        val newStudentDTO = studentRepository.postStudent(signUpStudent)
+
+        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, newStudentDTO.id)
+
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
+        }
+    }
+
+    suspend fun login(email: String, password: String) {
+        val credentialDTO = CredentialDTO()
+        credentialDTO.email = email
+        credentialDTO.password = password
+
+        val studentDTO = studentRepository.login(credentialDTO)
 
         _uiState.update {
             it.copy(student = Student(studentDTO = studentDTO))
