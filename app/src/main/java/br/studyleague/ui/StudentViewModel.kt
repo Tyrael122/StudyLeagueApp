@@ -43,7 +43,7 @@ class StudentViewModel(
     init {
         runBlocking {
             val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
-            if (studentId != null) {
+            if (studentId != null && studentId != 0L) {
                 CustomLogger.d("StudentViewModel", "Student ID found in data store: $studentId")
 
                 fetchStudent(studentId)
@@ -74,12 +74,7 @@ class StudentViewModel(
         signUpStudent.credential = credentialDTO
 
         val newStudentDTO = studentRepository.postStudent(signUpStudent)
-
-        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, newStudentDTO.id)
-
-        _uiState.update {
-            it.copy(student = Student(studentDTO = studentDTO))
-        }
+        login(newStudentDTO)
     }
 
     suspend fun login(email: String, password: String) {
@@ -88,9 +83,14 @@ class StudentViewModel(
         credentialDTO.password = password
 
         val studentDTO = studentRepository.login(credentialDTO)
+        login(studentDTO)
+    }
+
+    suspend fun logout() {
+        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, 0)
 
         _uiState.update {
-            it.copy(student = Student(studentDTO = studentDTO))
+            it.copy(student = Student())
         }
     }
 
@@ -261,6 +261,22 @@ class StudentViewModel(
         return LocalDateTime.now().plusNanos(_timeDifferenceBetweenLocalAndServer!!.nano.toLong())
     }
 
+    private suspend fun fetchStudent(studentId: Long) {
+        val studentDTO = studentRepository.fetchStudent(studentId)
+
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
+        }
+    }
+
+    private suspend fun login(studentDTO: StudentDTO) {
+        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+
+        _uiState.update {
+            it.copy(student = Student(studentDTO = studentDTO))
+        }
+    }
+
     private suspend fun updateSubjectGoals(goals: List<Float>, dateRangeType: DateRangeType) {
         val studentId = uiState.value.student.studentDTO.id
         val subjectId = uiState.value.selectedSubject.subjectDTO.id
@@ -281,14 +297,6 @@ class StudentViewModel(
     private fun findSubjectById(subjectId: Long): Subject {
         return uiState.value.subjects.getLoadedValue().find { it.subjectDTO.id == subjectId }
             ?: throw IllegalArgumentException("Subject not found.")
-    }
-
-    private suspend fun fetchStudent(studentId: Long) {
-        val studentDTO = studentRepository.fetchStudent(studentId)
-
-        _uiState.update {
-            it.copy(student = Student(studentDTO = studentDTO))
-        }
     }
 
     private fun convertToStatisticType(

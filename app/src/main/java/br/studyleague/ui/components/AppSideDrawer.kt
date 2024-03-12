@@ -39,7 +39,7 @@ fun DrawerContent(
     modifier: Modifier = Modifier,
     items: List<NavigationItem>,
     currentRoute: String,
-    onLogout: () -> Unit = {},
+    onLogout: () -> Unit,
     closeDrawer: () -> Unit,
     isCompactMode: Boolean = true,
     userInfoTitle: String,
@@ -53,10 +53,13 @@ fun DrawerContent(
         Column(
             verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxHeight()
         ) {
-
             Column {
                 if (!isCompactMode) {
-                    UserInfo(title = userInfoTitle, subtitle = userInfoSubtitle, modifier = Modifier.padding(top = 20.dp, bottom = 45.dp))
+                    UserInfo(
+                        title = userInfoTitle,
+                        subtitle = userInfoSubtitle,
+                        modifier = Modifier.padding(top = 20.dp, bottom = 45.dp)
+                    )
                 }
 
                 items.forEach { item ->
@@ -69,8 +72,8 @@ fun DrawerContent(
                         icon = item.icon,
                         selected = item.route == currentRoute,
                         onClick = {
-                            item.onClick()
                             closeDrawer()
+                            item.onClick()
                         },
                         shape = RoundedCornerShape(10.dp),
                         colors = NavigationDrawerItemDefaults.colors(
@@ -80,6 +83,13 @@ fun DrawerContent(
                         modifier = Modifier.padding(horizontal = 25.dp, vertical = 10.dp)
                     )
                 }
+            }
+
+            if (!isCompactMode) {
+                LogoutButton(
+                    onClick = onLogout,
+                    modifier = Modifier.padding(horizontal = 25.dp, vertical = 10.dp)
+                )
             }
         }
     }
@@ -98,8 +108,7 @@ fun UserInfo(title: String, subtitle: String, modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = title,
-            style = TextStyle(
+            text = title, style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ), modifier = Modifier.padding(top = 10.dp)
         )
@@ -113,7 +122,7 @@ fun UserInfo(title: String, subtitle: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LogoutButton(onClick: () -> Unit, modifier: Modifier) {
+fun LogoutButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick, shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
@@ -130,7 +139,6 @@ fun LogoutButton(onClick: () -> Unit, modifier: Modifier) {
 
         Text(
             text = "Logout",
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }

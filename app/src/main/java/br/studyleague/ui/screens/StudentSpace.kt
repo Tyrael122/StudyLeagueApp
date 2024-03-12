@@ -42,14 +42,11 @@ import br.studyleague.ui.screens.studentspace.SubjectScreen
 import br.studyleague.ui.screens.studentspace.SubjectTableScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
 
 
 @Composable
 fun StudentSpace(
-    modifier: Modifier = Modifier,
-    hasCompletedOnboarding: Boolean,
-    bottomBar: @Composable () -> Unit = {},
+    modifier: Modifier = Modifier, hasCompletedOnboarding: Boolean, onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
     var currentRoute by remember {
@@ -76,9 +73,10 @@ fun StudentSpace(
         studentGoal = student.goal,
         currentRoute = currentRoute,
         navigationItems = navItems,
-        isCompactMode = isCompactMode
+        isCompactMode = isCompactMode,
+        onLogout = onLogout
     ) { openNavDrawer ->
-        Scaffold(bottomBar = bottomBar, topBar = {
+        Scaffold(topBar = {
             if (!isCompactMode) {
                 StudentTopBar(title = topBarTitle(currentRoute), onNavigationIconClick = {
                     openNavDrawer()
@@ -141,18 +139,32 @@ fun StudentNavigationDrawer(
     studentName: String,
     studentGoal: String,
     navigationItems: List<NavigationItem>,
-    content: @Composable (() -> Unit) -> Unit
+    onLogout: () -> Unit,
+    content: @Composable (() -> Unit) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val studentViewModel = LocalStudentViewModel.current
+    val coroutineScope = rememberCoroutineScope()
+
     ModalNavigationDrawer(modifier = modifier, drawerState = drawerState, drawerContent = {
-        DrawerContent(
-            items = navigationItems,
+        DrawerContent(items = navigationItems,
             currentRoute = currentRoute,
             closeDrawer = {
                 scope.launch {
                     drawerState.close()
+                }
+            },
+            onLogout = {
+                coroutineScope.launch {
+                    studentViewModel.logout()
+
+                    scope.launch {
+                        drawerState.close()
+                    }
+
+                    onLogout()
                 }
             },
             isCompactMode = isCompactMode,

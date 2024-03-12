@@ -104,7 +104,9 @@ fun StudyLeagueApp() {
             }
 
             composable(OnboardingScreens.STUDENT_SPACE.name) {
-                StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding)
+                StudentSpace(hasCompletedOnboarding = hasCompletedOnboarding) {
+                    navController.navigate(OnboardingScreens.ONBOARDING.name)
+                }
 
                 if (!hasCompletedOnboarding) {
                     setOnboardingAsComplete(dataStoreManager)
