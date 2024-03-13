@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import br.studyleague.OnboardingScreens
 import br.studyleague.data.DataStoreKeys
 import br.studyleague.data.DataStoreManager
 import br.studyleague.data.repositories.StudentRepository
@@ -42,7 +43,7 @@ class StudentViewModel(
 
     init {
         runBlocking {
-            val studentId = dataStoreManager.getValueFromDataStore(DataStoreKeys.studentIdKey)
+            val studentId = dataStoreManager.getValue(DataStoreKeys.studentIdKey)
             if (studentId != null && studentId != 0L) {
                 CustomLogger.d("StudentViewModel", "Student ID found in data store: $studentId")
 
@@ -84,14 +85,22 @@ class StudentViewModel(
 
         val studentDTO = studentRepository.login(credentialDTO)
         login(studentDTO)
+
+        updateStartupScreen(OnboardingScreens.STUDENT_SPACE.name)
     }
 
     suspend fun logout() {
-        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, 0)
+        dataStoreManager.setValue(DataStoreKeys.studentIdKey, 0)
 
         _uiState.update {
             it.copy(student = Student())
         }
+
+        updateStartupScreen(OnboardingScreens.ONBOARDING.name)
+    }
+
+    suspend fun finishOnboarding() {
+        updateStartupScreen(OnboardingScreens.STUDENT_SPACE.name)
     }
 
     suspend fun addSubjects(subjects: List<Subject>) {
@@ -270,7 +279,7 @@ class StudentViewModel(
     }
 
     private suspend fun login(studentDTO: StudentDTO) {
-        dataStoreManager.setDataStoreValue(DataStoreKeys.studentIdKey, studentDTO.id)
+        dataStoreManager.setValue(DataStoreKeys.studentIdKey, studentDTO.id)
 
         _uiState.update {
             it.copy(student = Student(studentDTO = studentDTO))
@@ -315,6 +324,10 @@ class StudentViewModel(
             2 -> StatisticType.REVIEWS
             else -> throw IllegalArgumentException("Invalid index.")
         }
+    }
+
+    private suspend fun updateStartupScreen(name: String) {
+        dataStoreManager.setValue(DataStoreKeys.startupScreenKey, name)
     }
 
     companion object {

@@ -25,33 +25,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        defineUncaughtExceptionBehavior()
-
-//        setContentWithComposeTimeException()
-//        setContentWithClickableButton()
-
-        setDefaultContent()
-    }
-
-    private fun setContentWithComposeTimeException() {
-        setContent {
-            throw IllegalArgumentException("This is a test exception, being thrown at composition, at the beginning of the setContent block." +
-                    " Timestamp: ${System.currentTimeMillis()}, formatted: ${LocalDateTime.now()}")
-        }
-    }
-
-    private fun setContentWithClickableButton() {
-        setContent {
-            Button(onClick = {
-                CustomLogger.d("Firebase", "Clicked on button, now throwing exception for testing purposes")
-                throw IllegalArgumentException("This is a test exception")
-            }) {
-                Text("Click me")
-            }
-        }
-    }
-
-    private fun setDefaultContent() {
         setContent {
             StudyLeagueTheme(darkTheme = false, dynamicColor = false) {
                 Surface(
@@ -60,17 +33,6 @@ class MainActivity : ComponentActivity() {
                     StudyLeagueApp()
                 }
             }
-        }
-    }
-
-    private fun defineUncaughtExceptionBehavior() {
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            Log.e(
-                "Firebase", "Uncaught exception in thread ${thread.name}", throwable
-            )
-
-            finish()
-//            thread.uncaughtExceptionHandler?.uncaughtException(thread, throwable)
         }
     }
 }

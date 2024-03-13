@@ -29,93 +29,85 @@ class StudentRepository(
     }
 
     suspend fun login(credential: CredentialDTO): StudentDTO {
-        return withContext(ioDispatcher) {
-            parseEntityInBodyOrThrow(retrofitService.login(credential))
-        }
+        return doNetworkRequest { retrofitService.login(credential) }
     }
 
     suspend fun postStudent(signUpStudent: SignUpStudentData): StudentDTO {
-        return withContext(ioDispatcher) {
-            parseEntityInBodyOrThrow(retrofitService.postStudent(signUpStudent))
-        }
+        return doNetworkRequest { retrofitService.postStudent(signUpStudent) }
     }
 
     suspend fun fetchStudent(studentId: Long): StudentDTO {
-        return withContext(ioDispatcher) {
-            retrofitService.fetchStudent(studentId)
-        }
+        return doNetworkRequest { retrofitService.fetchStudent(studentId) }
     }
 
     suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO {
-        return withContext(ioDispatcher) {
-            retrofitService.fetchStudentStats(studentId, date)
-        }
+        return doNetworkRequest { retrofitService.fetchStudentStats(studentId, date) }
     }
 
     suspend fun postSubjects(studentId: Long, subjects: List<SubjectDTO>) {
-        return withContext(ioDispatcher) {
-            retrofitService.postSubjects(studentId, subjects)
-        }
+        doNetworkRequest { retrofitService.postSubjects(studentId, subjects) }
     }
 
     suspend fun deleteSubjects(studentId: Long, subjects: List<SubjectDTO>) {
-        return withContext(ioDispatcher) {
-            retrofitService.deleteSubjects(studentId, subjects)
-        }
+        doNetworkRequest { retrofitService.deleteSubjects(studentId, subjects) }
     }
 
     suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
-        return withContext(ioDispatcher) {
-            retrofitService.fetchAllSubjects(studentId, date)
-        }
+        return doNetworkRequest { retrofitService.fetchAllSubjects(studentId, date) }
     }
 
     suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
-        return withContext(ioDispatcher) {
-            retrofitService.fetchScheduledSubjects(studentId, date)
-        }
+        return doNetworkRequest { retrofitService.fetchScheduledSubjects(studentId, date) }
     }
 
     suspend fun postSubjectGoals(
         studentId: Long, subjectId: Long, dateRangeType: DateRangeType, goals: List<WriteGoalDTO>
     ) {
-        return withContext(ioDispatcher) {
-            retrofitService.postSubjectGoals(studentId, subjectId, dateRangeType, goals)
+        doNetworkRequest {
+            retrofitService.postSubjectGoals(
+                studentId, subjectId, dateRangeType, goals
+            )
         }
     }
 
     suspend fun postSubjectStats(studentId: Long, subjectId: Long, stats: List<WriteStatisticDTO>) {
-        return withContext(ioDispatcher) {
-            retrofitService.postSubjectStats(studentId, subjectId, stats)
-        }
+        doNetworkRequest { retrofitService.postSubjectStats(studentId, subjectId, stats) }
     }
 
     suspend fun postSchedule(studentId: Long, schedule: ScheduleDTO) {
-        return withContext(ioDispatcher) {
-            retrofitService.postSchedule(studentId, schedule)
-        }
+        doNetworkRequest { retrofitService.postSchedule(studentId, schedule) }
     }
 
     suspend fun fetchSchedule(studentId: Long): ScheduleDTO {
-        return withContext(ioDispatcher) {
-            retrofitService.fetchSchedule(studentId)
-        }
+        return doNetworkRequest { retrofitService.fetchSchedule(studentId) }
     }
 
     suspend fun fetchCurrentServerTime(): LocalDateTime {
+        return doNetworkRequest { retrofitService.fetchCurrentServerTime() }
+    }
+
+    private suspend fun <T> doNetworkRequest(request: suspend () -> Response<T>): T {
         return withContext(ioDispatcher) {
-            retrofitService.fetchCurrentServerTime()
+            val response = request()
+
+            parseEntityInBodyOrThrow(response)
         }
     }
 
     private fun <T> parseEntityInBodyOrThrow(response: Response<T>): T {
-        if (!response.isSuccessful)
-            throw Exception(parseErrorBodyDetailMessage(response.errorBody()))
+        if (!response.isSuccessful) throwHttpException(parseErrorBodyDetailMessage(response.errorBody()))
 
-        if (response.body() == null)
-            throw Exception("Erro desconhecido")
+        if (response.body() == null) throwHttpException("Resposta vazia do servidor")
 
         return response.body()!!
+    }
+
+    private fun throwHttpException(errorMessage: String) {
+        val exception = RuntimeException(errorMessage)
+
+        CustomLogger.e("StudentRepository", errorMessage, exception)
+
+        throw exception
     }
 
     private fun parseErrorBodyDetailMessage(responseBody: ResponseBody?): String {

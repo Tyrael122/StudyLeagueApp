@@ -28,35 +28,35 @@ interface StudyLeagueAPI {
     suspend fun postStudent(@Body student: SignUpStudentData): Response<StudentDTO>
 
     @GET(EndpointPrefixes.STUDENT_ID)
-    suspend fun fetchStudent(@Path("studentId") studentId: Long): StudentDTO
+    suspend fun fetchStudent(@Path("studentId") studentId: Long): Response<StudentDTO>
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STATS)
-    suspend fun fetchStudentStats(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): StudentStatisticsDTO
+    suspend fun fetchStudentStats(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): Response<StudentStatisticsDTO>
 
     @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT)
-    suspend fun postSubjects(@Path("studentId") studentId: Long, @Body subjects: List<SubjectDTO>)
+    suspend fun postSubjects(@Path("studentId") studentId: Long, @Body subjects: List<SubjectDTO>): Response<Unit>
 
     @HTTP(method = "DELETE", path = EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT, hasBody = true)
     suspend fun deleteSubjects(@Path("studentId") studentId: Long, @Body subjects: List<SubjectDTO>): Response<Unit>
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT)
-    suspend fun fetchAllSubjects(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): List<SubjectDTO>
+    suspend fun fetchAllSubjects(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): Response<List<SubjectDTO>>
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SCHEDULED_SUBJECT)
-    suspend fun fetchScheduledSubjects(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): List<SubjectDTO>
+    suspend fun fetchScheduledSubjects(@Path("studentId") studentId: Long, @Query("date") date: LocalDate): Response<List<SubjectDTO>>
 
     @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT_ID + EndpointPrefixes.GOALS)
-    suspend fun postSubjectGoals(@Path("studentId") studentId: Long, @Path("subjectId") subjectId: Long, @Query("dateRangeType") dateRangeType: DateRangeType, @Body goals: List<WriteGoalDTO>)
+    suspend fun postSubjectGoals(@Path("studentId") studentId: Long, @Path("subjectId") subjectId: Long, @Query("dateRangeType") dateRangeType: DateRangeType, @Body goals: List<WriteGoalDTO>): Response<Unit>
 
     @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SUBJECT_ID + EndpointPrefixes.STATS)
-    suspend fun postSubjectStats(@Path("studentId") studentId: Long, @Path("subjectId") subjectId: Long, @Body stats: List<WriteStatisticDTO>)
+    suspend fun postSubjectStats(@Path("studentId") studentId: Long, @Path("subjectId") subjectId: Long, @Body stats: List<WriteStatisticDTO>): Response<Unit>
 
     @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SCHEDULE)
-    suspend fun postSchedule(@Path("studentId") studentId: Long, @Body schedule: ScheduleDTO)
+    suspend fun postSchedule(@Path("studentId") studentId: Long, @Body schedule: ScheduleDTO): Response<Unit>
 
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SCHEDULE)
-    suspend fun fetchSchedule(@Path("studentId") studentId: Long): ScheduleDTO
+    suspend fun fetchSchedule(@Path("studentId") studentId: Long): Response<ScheduleDTO>
 
     @GET(EndpointPrefixes.CURRENT_TIME)
-    suspend fun fetchCurrentServerTime(): LocalDateTime
+    suspend fun fetchCurrentServerTime(): Response<LocalDateTime>
 }

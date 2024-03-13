@@ -61,8 +61,6 @@ fun OnboardingScreen(navigateToLoginScreen: () -> Unit, navigateToSignUpScreen: 
         }
 
         Row(horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()) {
-            OnboardingButton(onClick = navigateToLoginScreen, text = "ENTRAR")
-
             TextButton(onClick = navigateToSignUpScreen) {
                 Text(
                     "CADASTRAR",
@@ -71,6 +69,8 @@ fun OnboardingScreen(navigateToLoginScreen: () -> Unit, navigateToSignUpScreen: 
                     modifier = Modifier.padding(10.dp)
                 )
             }
+
+            OnboardingButton(onClick = navigateToLoginScreen, text = "ENTRAR")
         }
     }
 }

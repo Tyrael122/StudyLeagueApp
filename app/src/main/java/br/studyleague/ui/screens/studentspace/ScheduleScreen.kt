@@ -292,6 +292,17 @@ fun ScheduleEntryInfoDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                TextButton(
+                    onClick = onDelete,
+                ) {
+                    Text(
+                        "Deletar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Light,
+                        color = Color.Black
+                    )
+                }
+
                 TextButton(onClick = {
                     val subject = availableSubjects.find {
                         it.subjectDTO.name == copiedScheduleEntry.content
@@ -311,17 +322,6 @@ fun ScheduleEntryInfoDialog(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Light,
                         color = Color.Black,
-                    )
-                }
-
-                TextButton(
-                    onClick = onDelete,
-                ) {
-                    Text(
-                        "Deletar",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Light,
-                        color = Color.Black
                     )
                 }
             }

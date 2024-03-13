@@ -46,7 +46,7 @@ import kotlinx.coroutines.runBlocking
 
 @Composable
 fun StudentSpace(
-    modifier: Modifier = Modifier, hasCompletedOnboarding: Boolean, onLogout: () -> Unit
+    modifier: Modifier = Modifier, startupScreen: String, onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
     var currentRoute by remember {
@@ -89,8 +89,7 @@ fun StudentSpace(
                     .fillMaxSize()
             ) {
                 StudentNavGraph(
-                    navController = navController,
-                    startDestination = if (hasCompletedOnboarding) StudentScreens.GLOBAL_STATS.name else StudentScreens.SUBJECTS_TABLE.name
+                    navController = navController, startDestination = startupScreen
                 )
             }
         }
