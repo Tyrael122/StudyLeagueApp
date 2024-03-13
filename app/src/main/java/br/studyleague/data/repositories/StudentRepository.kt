@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.jsonObject
 import okhttp3.ResponseBody
+import retrofit2.HttpException
 import retrofit2.Response
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -95,17 +96,17 @@ class StudentRepository(
     }
 
     private fun <T> parseEntityInBodyOrThrow(response: Response<T>): T {
-        if (!response.isSuccessful) throwHttpException(parseErrorBodyDetailMessage(response.errorBody()))
+        if (!response.isSuccessful) throwHttpException(response, parseErrorBodyDetailMessage(response.errorBody()))
 
-        if (response.body() == null) throwHttpException("Resposta vazia do servidor")
+        if (response.body() == null) throwHttpException(response, "Resposta vazia do servidor")
 
         return response.body()!!
     }
 
-    private fun throwHttpException(errorMessage: String) {
+    private fun <T> throwHttpException(response: Response<T>, errorMessage: String) {
         val exception = RuntimeException(errorMessage)
 
-        CustomLogger.e("StudentRepository", errorMessage, exception)
+        CustomLogger.e("StudentRepository", errorMessage, HttpException(response))
 
         throw exception
     }
