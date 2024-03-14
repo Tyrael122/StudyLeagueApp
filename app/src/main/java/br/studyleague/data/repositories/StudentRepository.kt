@@ -30,19 +30,19 @@ class StudentRepository(
     }
 
     suspend fun login(credential: CredentialDTO): StudentDTO {
-        return doNetworkRequest { retrofitService.login(credential) }
+        return parseEntityFromNetworkRequest { retrofitService.login(credential) }
     }
 
     suspend fun postStudent(signUpStudent: SignUpStudentData): StudentDTO {
-        return doNetworkRequest { retrofitService.postStudent(signUpStudent) }
+        return parseEntityFromNetworkRequest { retrofitService.postStudent(signUpStudent) }
     }
 
     suspend fun fetchStudent(studentId: Long): StudentDTO {
-        return doNetworkRequest { retrofitService.fetchStudent(studentId) }
+        return parseEntityFromNetworkRequest { retrofitService.fetchStudent(studentId) }
     }
 
     suspend fun fetchStudentStats(studentId: Long, date: LocalDate): StudentStatisticsDTO {
-        return doNetworkRequest { retrofitService.fetchStudentStats(studentId, date) }
+        return parseEntityFromNetworkRequest { retrofitService.fetchStudentStats(studentId, date) }
     }
 
     suspend fun postSubjects(studentId: Long, subjects: List<SubjectDTO>) {
@@ -54,11 +54,11 @@ class StudentRepository(
     }
 
     suspend fun fetchAllSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
-        return doNetworkRequest { retrofitService.fetchAllSubjects(studentId, date) }
+        return parseEntityFromNetworkRequest { retrofitService.fetchAllSubjects(studentId, date) }
     }
 
     suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
-        return doNetworkRequest { retrofitService.fetchScheduledSubjects(studentId, date) }
+        return parseEntityFromNetworkRequest { retrofitService.fetchScheduledSubjects(studentId, date) }
     }
 
     suspend fun postSubjectGoals(
@@ -80,27 +80,25 @@ class StudentRepository(
     }
 
     suspend fun fetchSchedule(studentId: Long): ScheduleDTO {
-        return doNetworkRequest { retrofitService.fetchSchedule(studentId) }
+        return parseEntityFromNetworkRequest { retrofitService.fetchSchedule(studentId) }
     }
 
     suspend fun fetchCurrentServerTime(): LocalDateTime {
-        return doNetworkRequest { retrofitService.fetchCurrentServerTime() }
+        return parseEntityFromNetworkRequest { retrofitService.fetchCurrentServerTime() }
     }
 
-    private suspend fun <T> doNetworkRequest(request: suspend () -> Response<T>): T {
+    private suspend fun <T> parseEntityFromNetworkRequest(request: suspend () -> Response<T>): T {
+        return doNetworkRequest { request() } ?: throw RuntimeException("Resposta vazia do servidor")
+    }
+
+    private suspend fun <T> doNetworkRequest(request: suspend () -> Response<T>): T? {
         return withContext(ioDispatcher) {
             val response = request()
 
-            parseEntityInBodyOrThrow(response)
+            if (!response.isSuccessful) throwHttpException(response, parseErrorBodyDetailMessage(response.errorBody()))
+
+            response.body()
         }
-    }
-
-    private fun <T> parseEntityInBodyOrThrow(response: Response<T>): T {
-        if (!response.isSuccessful) throwHttpException(response, parseErrorBodyDetailMessage(response.errorBody()))
-
-        if (response.body() == null) throwHttpException(response, "Resposta vazia do servidor")
-
-        return response.body()!!
     }
 
     private fun <T> throwHttpException(response: Response<T>, errorMessage: String) {
