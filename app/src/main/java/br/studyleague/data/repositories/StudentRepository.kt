@@ -1,6 +1,8 @@
 package br.studyleague.data.repositories
 
-import br.studyleague.util.CustomLogger
+import br.studyleague.data.NetworkRequestManager
+import br.studyleague.util.debug
+import br.studyleague.util.error
 import dtos.SubjectDTO
 import dtos.signin.CredentialDTO
 import dtos.signin.SignUpStudentData
@@ -10,9 +12,6 @@ import dtos.student.StudentStatisticsDTO
 import dtos.student.goals.WriteGoalDTO
 import dtos.student.schedule.ScheduleDTO
 import enums.DateRangeType
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.jsonObject
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -22,12 +21,12 @@ import java.time.LocalDateTime
 
 private val retrofit = RetrofitBuilder.buildRetrofit()
 
-class StudentRepository(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-) {
+class StudentRepository {
     private val retrofitService: StudyLeagueAPI by lazy {
         retrofit.create(StudyLeagueAPI::class.java)
     }
+
+    private val networkRequestManager = NetworkRequestManager()
 
     suspend fun login(credential: CredentialDTO): StudentDTO {
         return parseEntityFromNetworkRequest { retrofitService.login(credential) }
@@ -58,7 +57,11 @@ class StudentRepository(
     }
 
     suspend fun fetchScheduledSubjects(studentId: Long, date: LocalDate): List<SubjectDTO> {
-        return parseEntityFromNetworkRequest { retrofitService.fetchScheduledSubjects(studentId, date) }
+        return parseEntityFromNetworkRequest {
+            retrofitService.fetchScheduledSubjects(
+                studentId, date
+            )
+        }
     }
 
     suspend fun postSubjectGoals(
@@ -87,15 +90,31 @@ class StudentRepository(
         return parseEntityFromNetworkRequest { retrofitService.fetchCurrentServerTime() }
     }
 
-    private suspend fun <T> parseEntityFromNetworkRequest(request: suspend () -> Response<T>): T {
-        return doNetworkRequest { request() } ?: throw RuntimeException("Resposta vazia do servidor")
+    private suspend inline fun <T> parseEntityFromNetworkRequest(crossinline request: suspend () -> Response<T>): T {
+        return doNetworkRequest { request() }
+            ?: throw RuntimeException("Resposta vazia do servidor")
     }
 
-    private suspend fun <T> doNetworkRequest(request: suspend () -> Response<T>): T? {
-        return withContext(ioDispatcher) {
+    private suspend inline fun <K> doNetworkRequest(crossinline request: suspend () -> Response<K>): K? {
+        return networkRequestManager.doNetworkRequestWithCancellation { randomId ->
+            val idMessage = "ID $randomId"
+
+            debug("Starting network request with $idMessage.")
+
             val response = request()
 
-            if (!response.isSuccessful) throwHttpException(response, parseErrorBodyDetailMessage(response.errorBody()))
+            if (!response.isSuccessful) {
+                error(
+                    "Finishing network request with $idMessage with error.",
+                    HttpException(response)
+                )
+
+                throwHttpException(response, parseErrorBodyDetailMessage(response.errorBody()))
+            }
+
+            debug(
+                "Finished network request successfully with $idMessage with response $response"
+            )
 
             response.body()
         }
@@ -104,7 +123,7 @@ class StudentRepository(
     private fun <T> throwHttpException(response: Response<T>, errorMessage: String) {
         val exception = RuntimeException(errorMessage)
 
-        CustomLogger.e("StudentRepository", errorMessage, HttpException(response))
+        error(errorMessage, HttpException(response))
 
         throw exception
     }

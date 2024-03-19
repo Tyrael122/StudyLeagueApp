@@ -17,22 +17,28 @@ import br.studyleague.ui.FetchState
 import br.studyleague.ui.components.DefaultIconButtom
 import br.studyleague.ui.components.datagrid.DataGrid
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
-import br.studyleague.util.CustomLogger
+import br.studyleague.util.debug
 
 
 @Composable
-fun SubjectTableScreen(navigateToSubject: (Subject) -> Unit, navigateToAddSubjectScreen: () -> Unit) {
+fun SubjectTableScreen(
+    navigateToSubject: (Subject) -> Unit, navigateToAddSubjectScreen: () -> Unit
+) {
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        CustomLogger.d("SubjectTableScreen", "Fetching all subjects")
+        debug("Fetching all subjects")
 
         studentViewModel.fetchAllSubjects()
     }
 
     when (uiState.subjects) {
-        is FetchState.Loaded -> SubjectTableScreenContent(navigateToSubject = navigateToSubject, navigateToAddSubjectScreen = navigateToAddSubjectScreen)
+        is FetchState.Loaded -> SubjectTableScreenContent(
+            navigateToSubject = navigateToSubject,
+            navigateToAddSubjectScreen = navigateToAddSubjectScreen
+        )
+
         else -> {}
     }
 }

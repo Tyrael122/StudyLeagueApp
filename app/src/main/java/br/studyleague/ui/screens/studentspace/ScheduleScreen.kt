@@ -53,7 +53,7 @@ import br.studyleague.ui.components.Schedule
 import br.studyleague.ui.components.ScheduleEntryData
 import br.studyleague.ui.components.StudentDropdownMenu
 import br.studyleague.ui.components.ViewTimePickerDialog
-import br.studyleague.util.CustomLogger
+import br.studyleague.util.debug
 import dtos.SubjectDTO
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -70,7 +70,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     LaunchedEffect(Unit) {
         fetchState = FetchState.Loading
 
-        CustomLogger.d("ScheduleScreen", "Fetching schedule at launched effect")
+        debug("Fetching schedule at launched effect")
 
         studentViewModel.fetchAllSubjects()
         studentViewModel.fetchSchedule()
@@ -348,7 +348,7 @@ private fun setFullscreenModeAndLandscapeMode() {
 
         activity.requestedOrientation = screenOrientation
 
-        CustomLogger.d("ScheduleScreen", "Setting fullscreen mode")
+        debug("Setting fullscreen mode")
 
         val window = activity.window
         WindowCompat.getInsetsController(window, window.decorView).let {
@@ -363,7 +363,7 @@ private fun setFullscreenModeAndLandscapeMode() {
             WindowCompat.getInsetsController(window, window.decorView)
                 .show(WindowInsetsCompat.Type.systemBars())
 
-            CustomLogger.d("ScheduleScreen", "Disposing fullscreen mode")
+            debug("Disposing fullscreen mode")
         }
     }
 }

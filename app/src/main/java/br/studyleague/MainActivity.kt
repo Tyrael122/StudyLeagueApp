@@ -1,14 +1,12 @@
 package br.studyleague
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,8 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import br.studyleague.ui.theme.StudyLeagueTheme
-import br.studyleague.util.CustomLogger
-import java.time.LocalDateTime
+import br.studyleague.util.debug
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +50,7 @@ fun ErrorScreen(error: Throwable? = null) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        CustomLogger.d("ErrorScreen", "Informações técnicas: ${error?.message ?: "Erro desconhecido"}")
+        debug("Informações técnicas: ${error?.message ?: "Erro desconhecido"}")
 
         Text(
             text = "Informações técnicas: ${error?.message ?: "Erro desconhecido"}",

@@ -2,6 +2,7 @@ package br.studyleague.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import br.studyleague.OnboardingScreens
@@ -13,7 +14,7 @@ import br.studyleague.model.Student
 import br.studyleague.model.StudentStats
 import br.studyleague.model.Subject
 import br.studyleague.ui.components.ScheduleEntryData
-import br.studyleague.util.CustomLogger
+import br.studyleague.util.debug
 import dtos.signin.CredentialDTO
 import dtos.signin.SignUpStudentData
 import dtos.statistic.WriteStatisticDTO
@@ -26,6 +27,7 @@ import enums.StatisticType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,7 +47,7 @@ class StudentViewModel(
         runBlocking {
             val studentId = dataStoreManager.getValue(DataStoreKeys.studentIdKey)
             if (studentId != null && studentId != 0L) {
-                CustomLogger.d("StudentViewModel", "Student ID found in data store: $studentId")
+                debug("Student ID found in data store: $studentId")
 
                 fetchStudent(studentId)
             }
@@ -64,6 +66,9 @@ class StudentViewModel(
     }
 
     suspend fun createStudent(email: String, password: String) {
+        viewModelScope.launch {
+
+        }
         val studentDTO = _uiState.value.student.studentDTO
 
         val credentialDTO = CredentialDTO()

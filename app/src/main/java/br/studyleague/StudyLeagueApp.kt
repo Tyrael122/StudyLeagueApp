@@ -16,10 +16,10 @@ import br.studyleague.ui.screens.StudentScreens
 import br.studyleague.ui.screens.StudentSpace
 import br.studyleague.ui.screens.onboarding.AddInitialSubjectsOnboardingScreen
 import br.studyleague.ui.screens.onboarding.OnboardingScreen
-import br.studyleague.ui.screens.onboarding.signin.PersonalInfoScreen
 import br.studyleague.ui.screens.onboarding.explanation.GoalsExplanationScreen
 import br.studyleague.ui.screens.onboarding.explanation.ScheduleExplanationScreen
 import br.studyleague.ui.screens.onboarding.signin.LoginScreen
+import br.studyleague.ui.screens.onboarding.signin.PersonalInfoScreen
 import br.studyleague.ui.screens.onboarding.signin.SignUpScreen
 import br.studyleague.ui.screens.studentspace.ScheduleScreen
 import kotlinx.coroutines.launch
