@@ -180,7 +180,7 @@ class StudentViewModel(
         val listOfScheduleEntries = mutableListOf<ScheduleEntryData>()
 
         for (day in uiState.value.schedule.getLoadedValue().scheduleDTO.days) {
-            for (scheduleEntry in day.schedule) {
+            for (scheduleEntry in day.entries) {
                 val subject = findSubjectById(scheduleEntry.subjectId)
 
                 listOfScheduleEntries.add(
