@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.House
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -239,13 +243,13 @@ fun createNavigationItems(navController: NavHostController): List<NavigationItem
 
 enum class StudentScreens(val icon: ImageVector, val label: String) {
     GLOBAL_STATS(
-        Icons.Filled.House, "Total"
+        Icons.Filled.Analytics, "Total"
     ),
-    DAILY_STATS(Icons.Filled.House, "Diário"), SCHEDULE(
-        Icons.Filled.House, "Cronograma"
+    DAILY_STATS(Icons.Filled.Home, "Diário"), SCHEDULE(
+        Icons.Filled.Schedule, "Cronograma"
     ),
     SUBJECTS_TABLE(
-        Icons.Filled.House, "Matérias"
+        Icons.AutoMirrored.Filled.MenuBook, "Metas e matérias"
     ),
     SUBJECT(Icons.Filled.House, ""), ADD_SUBJECT(Icons.Filled.House, ""),
 }

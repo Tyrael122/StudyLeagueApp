@@ -89,13 +89,13 @@ fun GlobalStatsScreenContent() {
             listOf("Horas", weeklyStats.hours.toString())
         )
 
-        Accordion(title = "Total", startsExpanded = true, body = {
+        Accordion(title = "Total", body = {
             TextRow(
                 items = globalItems
             )
         })
 
-        Accordion(title = "Semanal", body = {
+        Accordion(title = "Semanal", startsExpanded = true, body = {
             TextRow(
                 items = weeeklyItems
             )

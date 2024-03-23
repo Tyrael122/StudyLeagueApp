@@ -47,7 +47,7 @@ fun StudyLeagueApp() {
             ?: OnboardingScreens.ONBOARDING.name
     }
 
-    var startupStudentSpaceScreen = StudentScreens.GLOBAL_STATS.name
+    var startupStudentSpaceScreen = StudentScreens.DAILY_STATS.name
 
     CompositionLocalProvider(LocalStudentViewModel provides studentViewModel) {
         NavHost(
