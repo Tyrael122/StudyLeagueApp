@@ -65,7 +65,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
     val studentViewModel = LocalStudentViewModel.current
     val studentUiState by studentViewModel.uiState.collectAsState()
 
-    var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
+    var fetchState by remember { mutableStateOf<FetchState>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
         fetchState = FetchState.Loading
@@ -75,7 +75,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
         studentViewModel.fetchAllSubjects()
         studentViewModel.fetchSchedule()
 
-        fetchState = FetchState.Loaded(Unit)
+        fetchState = FetchState.Loaded
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -89,7 +89,7 @@ fun ScheduleScreen(modifier: Modifier = Modifier, onDone: () -> Unit) {
 
                 onDone()
             },
-            subjects = studentUiState.subjects.getLoadedValue(),
+            subjects = studentUiState.subjects,
             initialScheduleEntriesGenerator = { studentViewModel.getScheduleEntries(it) })
 
         else -> {}

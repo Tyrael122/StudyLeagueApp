@@ -3,12 +3,15 @@ package br.studyleague.data.repositories
 import dtos.SubjectDTO
 import dtos.signin.CredentialDTO
 import dtos.signin.SignUpStudentData
-import dtos.statistic.WriteStatisticDTO
+import dtos.student.ScheduleDTO
 import dtos.student.StudentDTO
 import dtos.student.StudentStatisticsDTO
-import dtos.student.goals.WriteGoalDTO
-import dtos.student.schedule.ScheduleDTO
+import dtos.student.StudyCycleDTO
+import dtos.student.StudyCycleEntryDTO
+import dtos.student.WriteGoalDTO
+import dtos.student.WriteStatisticDTO
 import enums.DateRangeType
+import enums.StudySchedulingMethods
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -57,6 +60,21 @@ interface StudyLeagueAPI {
     @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.SCHEDULE)
     suspend fun fetchSchedule(@Path("studentId") studentId: Long): Response<ScheduleDTO>
 
+    @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STUDY_CYCLE)
+    suspend fun postStudyCycle(@Path("studentId") studentId: Long, @Body entries: List<StudyCycleEntryDTO>): Response<Unit>
+
+    @GET(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STUDY_CYCLE)
+    suspend fun fetchStudyCycle(@Path("studentId") studentId: Long): Response<StudyCycleDTO>
+
+    @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STUDY_CYCLE_NEXT)
+    suspend fun nextSubjectInStudyCycle(@Path("studentId") studentId: Long): Response<Unit>
+
     @GET(EndpointPrefixes.CURRENT_TIME)
     suspend fun fetchCurrentServerTime(): Response<LocalDateTime>
+
+    @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.CHANGE_SCHEDULE_METHOD)
+    suspend fun changeScheduleMethod(@Path("studentId") studentId: Long, @Query("newMethod") newMethod: StudySchedulingMethods): Response<Unit>
+
+    @POST(EndpointPrefixes.STUDENT_ID + EndpointPrefixes.STUDY_CYCLE + EndpointPrefixes.GOALS)
+    suspend fun updateStudyCycleWeeklyGoal(@Path("studentId") studentId: Long, @Body weeklyGoal: Int): Response<Unit>
 }

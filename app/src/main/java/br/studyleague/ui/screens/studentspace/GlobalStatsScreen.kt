@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,15 +27,20 @@ import br.studyleague.util.debug
 @Composable
 fun GlobalStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
-    val uiState by studentViewModel.uiState.collectAsState()
+
+    var fetchState by remember { mutableStateOf<FetchState>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
+        fetchState = FetchState.Loading
+
         debug("Fetching student stats at global screen")
 
         studentViewModel.fetchStudentStats()
+
+        fetchState = FetchState.Loaded
     }
 
-    when (uiState.studentStats) {
+    when (fetchState) {
         is FetchState.Loaded -> {
             GlobalStatsScreenContent()
         }
@@ -46,7 +54,7 @@ fun GlobalStatsScreenContent() {
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
 
-    val studentStats = uiState.studentStats.getLoadedValue().studentStatisticsDTO
+    val studentStats = uiState.studentStats.studentStatisticsDTO
 
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)

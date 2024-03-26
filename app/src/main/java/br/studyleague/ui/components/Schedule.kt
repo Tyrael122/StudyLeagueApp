@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.studyleague.model.Subject
-import dtos.student.schedule.ScheduleEntryDTO
+import dtos.student.ScheduleEntryDTO
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.format.TextStyle

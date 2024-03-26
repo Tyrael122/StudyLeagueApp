@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.studyleague.LocalStudentViewModel
@@ -25,15 +28,20 @@ fun SubjectTableScreen(
     navigateToSubject: (Subject) -> Unit, navigateToAddSubjectScreen: () -> Unit
 ) {
     val studentViewModel = LocalStudentViewModel.current
-    val uiState by studentViewModel.uiState.collectAsState()
+
+    var fetchState by remember { mutableStateOf<FetchState>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
+        fetchState = FetchState.Loading
+
         debug("Fetching all subjects")
 
         studentViewModel.fetchAllSubjects()
+
+        fetchState = FetchState.Loaded
     }
 
-    when (uiState.subjects) {
+    when (fetchState) {
         is FetchState.Loaded -> SubjectTableScreenContent(
             navigateToSubject = navigateToSubject,
             navigateToAddSubjectScreen = navigateToAddSubjectScreen
@@ -66,7 +74,7 @@ fun SubjectTableScreenContent(
                     navigateToSubject(it)
                 },
                 columns = Subject.columns,
-                items = uiState.subjects.getLoadedValue(),
+                items = uiState.subjects,
                 noContentText = "Nenhuma matéria agendada para hoje"
             )
         }

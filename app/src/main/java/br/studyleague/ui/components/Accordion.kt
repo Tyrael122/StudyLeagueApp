@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun Accordion(
     modifier: Modifier = Modifier,
-    title: String,
+    title: String, // TODO: Change this to be a composable. This way we can have more complex headers.
     body: @Composable () -> Unit,
     startsExpanded: Boolean = false
 ) {

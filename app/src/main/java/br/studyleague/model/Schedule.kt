@@ -1,6 +1,6 @@
 package br.studyleague.model
 
-import dtos.student.schedule.ScheduleDTO
+import dtos.student.ScheduleDTO
 
 
 data class Schedule(

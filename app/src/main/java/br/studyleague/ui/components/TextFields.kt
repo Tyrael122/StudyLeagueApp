@@ -197,16 +197,28 @@ fun NumberText(
 fun NumberTextField(
     modifier: Modifier = Modifier,
     value: String,
-    onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+    onValueChange: (String) -> Unit = {},
+    readOnly: Boolean = false,
     textStyle: TextStyle = TextStyle(
         fontSize = 16.sp, fontWeight = FontWeight.Light, textAlign = TextAlign.Center
     ),
 ) {
+    var auxValue by remember { mutableStateOf(value) }
+
     Box(modifier = modifier) {
         BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = auxValue,
+            onValueChange = {
+                auxValue = it
+
+                if (it.toIntOrNull() != null) {
+                    onValueChange(it)
+                }
+            },
             textStyle = textStyle,
+            keyboardOptions = keyboardOptions,
+            readOnly = readOnly,
         )
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import br.studyleague.ui.screens.studentspace.StudyCycleScreen
 import br.studyleague.ui.theme.StudyLeagueTheme
 import br.studyleague.util.debug
 

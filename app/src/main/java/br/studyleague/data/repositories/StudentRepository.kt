@@ -6,12 +6,15 @@ import br.studyleague.util.error
 import dtos.SubjectDTO
 import dtos.signin.CredentialDTO
 import dtos.signin.SignUpStudentData
-import dtos.statistic.WriteStatisticDTO
+import dtos.student.ScheduleDTO
 import dtos.student.StudentDTO
 import dtos.student.StudentStatisticsDTO
-import dtos.student.goals.WriteGoalDTO
-import dtos.student.schedule.ScheduleDTO
+import dtos.student.StudyCycleDTO
+import dtos.student.StudyCycleEntryDTO
+import dtos.student.WriteGoalDTO
+import dtos.student.WriteStatisticDTO
 import enums.DateRangeType
+import enums.StudySchedulingMethods
 import kotlinx.serialization.json.jsonObject
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -86,8 +89,28 @@ class StudentRepository {
         return parseEntityFromNetworkRequest { retrofitService.fetchSchedule(studentId) }
     }
 
+    suspend fun postStudyCycle(studentId: Long, entries: List<StudyCycleEntryDTO>) {
+        doNetworkRequest { retrofitService.postStudyCycle(studentId, entries) }
+    }
+
+    suspend fun fetchStudyCycle(studentId: Long): StudyCycleDTO {
+        return parseEntityFromNetworkRequest { retrofitService.fetchStudyCycle(studentId) }
+    }
+
+    suspend fun nextSubjectInStudyCycle(studentId: Long) {
+        doNetworkRequest { retrofitService.nextSubjectInStudyCycle(studentId) }
+    }
+
     suspend fun fetchCurrentServerTime(): LocalDateTime {
         return parseEntityFromNetworkRequest { retrofitService.fetchCurrentServerTime() }
+    }
+
+    suspend fun changeScheduleMethod(studentId: Long, newMethod: StudySchedulingMethods) {
+        doNetworkRequest { retrofitService.changeScheduleMethod(studentId, newMethod) }
+    }
+
+    suspend fun updateStudyCycleWeeklyGoal(studentId: Long, weeklyGoal: Int) {
+        doNetworkRequest { retrofitService.updateStudyCycleWeeklyGoal(studentId, weeklyGoal) }
     }
 
     private suspend inline fun <T> parseEntityFromNetworkRequest(crossinline request: suspend () -> Response<T>): T {
@@ -95,17 +118,17 @@ class StudentRepository {
             ?: throw RuntimeException("Resposta vazia do servidor")
     }
 
-    private suspend inline fun <K> doNetworkRequest(crossinline request: suspend () -> Response<K>): K? {
+    private suspend inline fun <K> doNetworkRequest(noinline request: suspend () -> Response<K>): K? {
         return networkRequestManager.doNetworkRequestWithCancellation { randomId ->
             val idMessage = "ID $randomId"
 
-            debug("Starting network request with $idMessage.")
+            debug("Starting network request with $idMessage. Request: $request")
 
             val response = request()
 
             if (!response.isSuccessful) {
                 error(
-                    "Finishing network request with $idMessage with error.",
+                    "Finishing network request with $idMessage with error response $response",
                     HttpException(response)
                 )
 

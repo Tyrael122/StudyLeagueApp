@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun StatisticsSquare(
+    modifier: Modifier = Modifier,
     title: String,
     data: String,
     titleTextStyle: TextStyle = TextStyle(fontWeight = FontWeight.Normal, fontSize = 12.sp),
@@ -26,12 +29,12 @@ fun StatisticsSquare(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier = modifier
             .shadow(5.dp, shape = RoundedCornerShape(10.dp))
             .background(Color.White)
-            .size(96.dp, 75.dp)
+            .sizeIn(minWidth = 96.dp, minHeight = 75.dp)
     ) {
-        Text(title, style = titleTextStyle, modifier = Modifier)
+        Text(title, style = titleTextStyle)
 
         Text(data, style = dataTextStyle)
     }

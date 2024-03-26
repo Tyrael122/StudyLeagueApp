@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Cyclone
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.House
+import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -39,11 +42,14 @@ import br.studyleague.ui.components.StudentTopBar
 import br.studyleague.ui.components.TopBarTitleHelper
 import br.studyleague.ui.components.TopBarTitleStyles
 import br.studyleague.ui.screens.studentspace.AddSubjectScreen
+import br.studyleague.ui.screens.studentspace.ConfigScreen
 import br.studyleague.ui.screens.studentspace.DailyStatsScreen
 import br.studyleague.ui.screens.studentspace.GlobalStatsScreen
 import br.studyleague.ui.screens.studentspace.ScheduleScreen
+import br.studyleague.ui.screens.studentspace.StudyCycleScreen
 import br.studyleague.ui.screens.studentspace.SubjectScreen
 import br.studyleague.ui.screens.studentspace.SubjectTableScreen
+import enums.StudySchedulingMethods
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -64,13 +70,13 @@ fun StudentSpace(
         currentRoute = destination.route ?: StudentScreens.GLOBAL_STATS.name
     })
 
-    val navItems = createNavigationItems(navController)
-
-    val isCompactMode = currentRoute == StudentScreens.SCHEDULE.name
-
     val studentViewModel = LocalStudentViewModel.current
     val uiState by studentViewModel.uiState.collectAsState()
-    val student = uiState.student.studentDTO
+    val student = uiState.student
+
+    val navItems = createNavigationItems(navController, student.currentStudySchedulingMethod)
+
+    val isCompactMode = currentRoute == StudentScreens.SCHEDULE.name
 
     StudentNavigationDrawer(
         studentName = student.name,
@@ -107,6 +113,10 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         startDestination = startDestination,
         modifier = Modifier.fillMaxSize()
     ) {
+        composable(StudentScreens.CONFIG.name) {
+            ConfigScreen()
+        }
+
         composable(StudentScreens.GLOBAL_STATS.name) {
             GlobalStatsScreen()
         }
@@ -131,6 +141,10 @@ fun StudentNavGraph(navController: NavHostController, startDestination: String) 
         composable(StudentScreens.SCHEDULE.name) {
             ScheduleScreen(onDone = { navController.navigate(StudentScreens.GLOBAL_STATS.name) })
         }
+
+        composable(StudentScreens.STUDY_CYCLE.name) {
+             StudyCycleScreen()
+        }
     }
 }
 
@@ -152,7 +166,8 @@ fun StudentNavigationDrawer(
     val coroutineScope = rememberCoroutineScope()
 
     ModalNavigationDrawer(modifier = modifier, drawerState = drawerState, drawerContent = {
-        DrawerContent(items = navigationItems,
+        DrawerContent(
+            items = navigationItems,
             currentRoute = currentRoute,
             closeDrawer = {
                 scope.launch {
@@ -221,17 +236,28 @@ fun topBarTitle(currentRoute: String): @Composable () -> Unit {
             }
         }
 
+        StudentScreens.STUDY_CYCLE.name -> {
+            TopBarTitleHelper.buildTextComposable(StudentScreens.STUDY_CYCLE.label)
+        }
+
+        StudentScreens.CONFIG.name -> {
+            TopBarTitleHelper.buildTextComposable(StudentScreens.CONFIG.label)
+        }
+
         else -> {
-            TopBarTitleHelper.buildTextComposable(uiState.student.studentDTO.goal)
+            TopBarTitleHelper.buildTextComposable(uiState.student.goal)
         }
     }
 }
 
-fun createNavigationItems(navController: NavHostController): List<NavigationItem> {
+fun createNavigationItems(
+    navController: NavHostController,
+    currentStudySchedulingMethod: StudySchedulingMethods
+): List<NavigationItem> {
     val navItemBuilder = NavigationItemBuilder(navController)
 
     for (screen in StudentScreens.entries) {
-        if (invisibleRoutes.contains(screen)) continue
+        if (shouldHideNavigationItem(screen, currentStudySchedulingMethod)) continue
 
         navItemBuilder.addNavigationItem(
             label = screen.label, route = screen.name, imageVector = screen.icon
@@ -241,6 +267,23 @@ fun createNavigationItems(navController: NavHostController): List<NavigationItem
     return navItemBuilder.build()
 }
 
+private fun shouldHideNavigationItem(
+    screen: StudentScreens,
+    currentStudySchedulingMethod: StudySchedulingMethods
+): Boolean {
+    if (invisibleRoutes.contains(screen)) return true
+
+    if (screen == StudentScreens.SCHEDULE && currentStudySchedulingMethod == StudySchedulingMethods.STUDYCYCLE) {
+        return true
+    }
+
+    if (screen == StudentScreens.STUDY_CYCLE && currentStudySchedulingMethod == StudySchedulingMethods.SCHEDULE) {
+        return true
+    }
+
+    return false
+}
+
 enum class StudentScreens(val icon: ImageVector, val label: String) {
     GLOBAL_STATS(
         Icons.Filled.Analytics, "Total"
@@ -248,10 +291,12 @@ enum class StudentScreens(val icon: ImageVector, val label: String) {
     DAILY_STATS(Icons.Filled.Home, "Diário"), SCHEDULE(
         Icons.Filled.Schedule, "Cronograma"
     ),
+    STUDY_CYCLE(Icons.Filled.Cyclone, "Ciclo de estudos"),
     SUBJECTS_TABLE(
         Icons.AutoMirrored.Filled.MenuBook, "Metas e matérias"
     ),
     SUBJECT(Icons.Filled.House, ""), ADD_SUBJECT(Icons.Filled.House, ""),
+    CONFIG(Icons.Filled.Settings, "Configurações");
 }
 
 val invisibleRoutes = listOf(StudentScreens.ADD_SUBJECT, StudentScreens.SUBJECT)

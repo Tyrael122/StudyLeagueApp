@@ -45,6 +45,7 @@ import br.studyleague.ui.components.StatisticsSquare
 import br.studyleague.ui.components.datagrid.DataGrid
 import br.studyleague.ui.screens.StudentSpaceDefaultColumn
 import br.studyleague.util.debug
+import enums.StudySchedulingMethods
 import kotlinx.coroutines.launch
 
 
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 fun DailyStatsScreen() {
     val studentViewModel = LocalStudentViewModel.current
 
-    var fetchState by remember { mutableStateOf<FetchState<Unit>>(FetchState.Empty) }
+    var fetchState by remember { mutableStateOf<FetchState>(FetchState.Empty) }
 
     LaunchedEffect(Unit) {
         debug("Fetching student stats at daily screen")
@@ -60,7 +61,7 @@ fun DailyStatsScreen() {
         studentViewModel.fetchScheduledSubjectsForDay()
         studentViewModel.fetchStudentStats()
 
-        fetchState = FetchState.Loaded(Unit)
+        fetchState = FetchState.Loaded
     }
 
     when (fetchState) {
@@ -77,11 +78,14 @@ fun DailyStatsScreen() {
 fun DailyScreenContent(studentViewModel: StudentViewModel) {
     val uiState by studentViewModel.uiState.collectAsState()
 
-    val studentStats = uiState.studentStats.getLoadedValue().studentStatisticsDTO
+    val studentStats = uiState.studentStats.studentStatisticsDTO
 
     StudentSpaceDefaultColumn(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        val isUsingSchedule =
+            uiState.student.currentStudySchedulingMethod == StudySchedulingMethods.SCHEDULE
+
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             val titleTextStyle = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 12.sp
@@ -98,12 +102,14 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
                 titleTextStyle = titleTextStyle
             )
 
-            StatisticsSquare(
-                title = "Metas batidas",
-                data = "${studentStats.hoursGoalsCompleted}/${uiState.subjects.getLoadedValue().size}",
-                dataTextStyle = dataTextStyle,
-                titleTextStyle = titleTextStyle
-            )
+            if (isUsingSchedule) {
+                StatisticsSquare(
+                    title = "Metas batidas",
+                    data = "${studentStats.hoursGoalsCompleted}/${uiState.subjects.size}",
+                    dataTextStyle = dataTextStyle,
+                    titleTextStyle = titleTextStyle
+                )
+            }
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
@@ -117,16 +123,18 @@ fun DailyScreenContent(studentViewModel: StudentViewModel) {
         var isBottomSheetVisible by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState()
 
-        DataGrid(isSearchBarVisible = false,
-            columns = Subject.columns,
-            items = uiState.subjects.getLoadedValue(),
-            transformToDataGridView = { it.toDailyStatsView() },
-            noContentText = "Nenhuma matéria agendada\npara hoje",
-            onItemClick = {
-                studentViewModel.selectSubject(it)
+        if (isUsingSchedule) {
+            DataGrid(isSearchBarVisible = false,
+                columns = Subject.columns,
+                items = uiState.subjects,
+                transformToDataGridView = { it.toDailyStatsView() },
+                noContentText = "Nenhuma matéria agendada\npara hoje",
+                onItemClick = {
+                    studentViewModel.selectSubject(it)
 
-                isBottomSheetVisible = true
-            })
+                    isBottomSheetVisible = true
+                })
+        }
 
         if (isBottomSheetVisible) {
             val selectedSubjectDailyStats = uiState.selectedSubject.subjectDTO.dailyStatistic
